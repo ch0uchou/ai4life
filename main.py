@@ -35,8 +35,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[config['GPU']], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[config['GPU']], True)
+if config['GPU'] < len(gpus):
+    tf.config.experimental.set_visible_devices(gpus[config['GPU']], 'GPU')
+    tf.config.experimental.set_memory_growth(gpus[config['GPU']], True)
+else:
+    print("Invalid GPU index in config. Please make sure it's less than the number of available GPUs.")
 
 
 # SET TRAINER
