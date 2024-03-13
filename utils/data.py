@@ -67,6 +67,16 @@ def load_kinetics(config, fold=0):
     train_gen = callable_gen(kinetics_generator(X_train, y_train, config['BATCH_SIZE']))
     val_gen = callable_gen(kinetics_generator(X_val, y_val, config['BATCH_SIZE']))
     test_gen = callable_gen(kinetics_generator(X_test, y_test, config['BATCH_SIZE']))
+
+    csv_file_path = "X_train.csv"
+
+    # Flatten the X_train array
+    X_train_flattened = X_train.reshape(X_train.shape[0], -1)
+
+    # Save X_train to CSV file
+    np.savetxt(csv_file_path, X_train_flattened, delimiter=",")
+
+    print("X_train has been saved to", csv_file_path)
     
     return train_gen, val_gen, test_gen, len(y_train), len(y_test)
 
