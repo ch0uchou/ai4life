@@ -1,5 +1,5 @@
 #---- GENERAL
-GPU: 0
+GPU: 1
 VERBOSE: False
 
 #---- PATHS
