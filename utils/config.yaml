@@ -45,9 +45,30 @@ kinetics:
     KEYPOINTS: 18
     CLASSES: 400
     FRAMES: 300
-LABELS: ['standing','check-watch','cross-arms','scratch-head','sit-down','get-up','turn-around','walking','wave1','boxing',
-         'kicking','pointing','pick-up','bending','hands-clapping','wave2','jogging','jumping','pjump','running']
-
+LABELS : [
+  "russian twist",
+  "tricep dips",
+  "t bar row",
+  "squat",
+  "shoulder press",
+  "romanian deadlift",
+  "push-up",
+  "plank",
+  "leg extension",
+  "leg raises",
+  "lat pulldown",
+  "incline bench press",
+  "tricep pushdown",
+  "pull up",
+  "lateral raise",
+  "hammer curl",
+  "decline bench press",
+  "hip thrust",
+  "bench press",
+  "chest fly machine",
+  "deadlift",
+  "barbell biceps curl"
+]
 #---- AUGMENTATION
 FLIP_P: 0.5
 RN_STD: 0.03
