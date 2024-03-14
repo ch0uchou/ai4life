@@ -1,5 +1,5 @@
 #---- GENERAL
-GPU: 1
+GPU: 0
 VERBOSE: False
 
 #---- PATHS
@@ -7,6 +7,10 @@ MODEL_DIR: 'bin/'
 RESULTS_DIR: 'results/'
 LOG_DIR: 'logs/'
 MODEL_NAME: 'AcT'
+X_TRAIN: "X.txt"
+Y_TRAIN: "Y.txt"
+X_TEST: "X_test.txt"
+Y_TEST: "Y_test.txt"
 
 #---- DATASET
 SPLITS: 3
