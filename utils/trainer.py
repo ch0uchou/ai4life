@@ -18,10 +18,10 @@ class Model(nn.Module):
         self.mlp_head_size = mlp_head_size
         self.transformer = transformer
 
-        self.dense = nn.Linear(self.config[self.config['DATASET']]['FRAMES'] // self.config['SUBSAMPLE'] * self.config[self.config['DATASET']]['KEYPOINTS'] * self.config['CHANNELS'], self.d_model)
-        self.patch_class_embedding = PatchClassEmbedding(self.d_model, self.config[self.config['DATASET']]['FRAMES'] // self.config['SUBSAMPLE'])
+        self.dense = nn.Linear(self.config['FRAMES'] // self.config['SUBSAMPLE'] * self.config['KEYPOINTS'] * self.config['CHANNELS'], self.d_model)
+        self.patch_class_embedding = PatchClassEmbedding(self.d_model, self.config['FRAMES'] // self.config['SUBSAMPLE'])
         self.dense_head = nn.Linear(self.d_model, self.mlp_head_size)
-        self.output = nn.Linear(self.mlp_head_size, self.config[self.config['DATASET']]['CLASSES'])
+        self.output = nn.Linear(self.mlp_head_size, self.config['CLASSES'])
 
     def forward(self, inputs):
         x = self.dense(inputs)
@@ -97,8 +97,8 @@ class Trainer:
                 acc_list.append(acc)
                 bal_acc_list.append(bal_acc)
                 
-            np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_accuracy.npy', acc_list)
-            np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_balanced_accuracy.npy', bal_acc_list)
+            np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + f'_{split}_accuracy.npy', acc_list)
+            np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + f'_{split}_balanced_accuracy.npy', bal_acc_list)
 
             self.logger.save_log(f"---- Split {split} ----")
             self.logger.save_log(f"Accuracy mean: {np.mean(acc_list)}")
