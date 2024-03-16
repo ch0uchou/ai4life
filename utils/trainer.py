@@ -44,9 +44,23 @@ class Trainer:
         self.d_model = 64 * self.n_heads
         self.d_ff = self.d_model * 4
         self.pos_emb = self.config['POS_EMB']
-
+        logger.save_log(f"cofig: {self.config}")
+        logger.save_log(f"split: {self.split}")
+        logger.save_log(f"fold: {self.fold}")
+        logger.save_log(f"bin_path: {self.bin_path}")
+        logger.save_log(f"model_size: {self.model_size}")
+        logger.save_log(f"n_heads: {self.n_heads}")
+        logger.save_log(f"n_layers: {self.n_layers}")
+        logger.save_log(f"embed_dim: {self.embed_dim}")
+        logger.save_log(f"dropout: {self.dropout}")
+        logger.save_log(f"mlp_head_size: {self.mlp_head_size}")
+        logger.save_log(f"activation: {self.activation}")
+        logger.save_log(f"d_model: {self.d_model}")
+        logger.save_log(f"d_ff: {self.d_ff}")
+        logger.save_log(f"pos_emb: {self.pos_emb}")
         
     def build_act(self, transformer):
+        self.logger.save_log(f"transformer: {transformer}")
         inputs = tf.keras.layers.Input(shape=(self.config[self.config['DATASET']]['FRAMES'] // self.config['SUBSAMPLE'], 
                                               self.config[self.config['DATASET']]['KEYPOINTS'] * self.config['CHANNELS']))
         self.logger.save_log(f"inputs = tf.keras.layers.Input: {inputs}")
@@ -110,7 +124,7 @@ class Trainer:
             
         else:
             X_train, y_train, X_test, y_test = load_mpose(self.config['DATASET'], self.split, 
-                                                          legacy=self.config['LEGACY'], verbose=False)
+                                                          legacy=self.config['LEGACY'], verbose=False, logger=self.logger)
             self.train_len = len(y_train)
             self.test_len = len(y_test)
             X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
@@ -119,6 +133,7 @@ class Trainer:
                                                               stratify=y_train)
             self.logger.save_log(f"X_train: {X_train.shape}")
             self.logger.save_log(f"y_train: {y_train.shape}")
+            self.logger.save_log(f"X_train[] shape: {X_train[1000,15,:,:]}")
             self.ds_train = tf.data.Dataset.from_tensor_slices((X_train, y_train))
             self.ds_val = tf.data.Dataset.from_tensor_slices((X_val, y_val))
             self.ds_test = tf.data.Dataset.from_tensor_slices((X_test, y_test))

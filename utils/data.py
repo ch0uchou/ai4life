@@ -71,7 +71,7 @@ def load_kinetics(config, fold=0):
     return train_gen, val_gen, test_gen, len(y_train), len(y_test)
 
 
-def load_mpose(dataset, split, verbose=False, legacy=False):
+def load_mpose(dataset, split, verbose=False, legacy=False, logger = None):
     
     if legacy:
         return load_dataset_legacy(data_folder=f'datasets/openpose_bm/split{split}/base_vars/')
@@ -81,16 +81,24 @@ def load_mpose(dataset, split, verbose=False, legacy=False):
                     preprocess=None, 
                     velocities=True, 
                     remove_zip=False)
-    
+    logger.log(f"dataset info: {d.get_info()} ")
+    X_train, y_train, X_test, y_test = d.get_data()
+    logger.save_log(f"X_train shape: {X_train.shape}")
+    logger.save_log(f"y_train shape: {y_train.shape}")
+    logger.save_log(f"X_train[] shape: {X_train[1000,15,:,:]}")
     if 'legacy' not in dataset:
         d.reduce_keypoints()
         d.scale_and_center()
         d.remove_confidence()
         d.flatten_features()
+        logger.save_log(f"dataset info if 'legacy' not in dataset:: {d.get_info()} ")
+        logger.save_log(f"X_train shape: {X_train.shape}")
+        logger.save_log(f"y_train shape: {y_train.shape}")
+        logger.save_log(f"X_train[] shape: {X_train[1000,15,:,:]}")
         #d.reduce_labels()
         return d.get_data()
     
-    elif 'openpose' in dataset:
+    if 'openpose' in dataset:
         X_train, y_train, X_test, y_test = d.get_data()
         return X_train, transform_labels(y_train), X_test, transform_labels(y_test)
     else:
