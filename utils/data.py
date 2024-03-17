@@ -42,33 +42,33 @@ labels = { # 20 Classes
     "pjump":18,
     "run":19}
 
+def load_y(y_path):
+    file = open(y_path, 'r')
+    y_ = np.array(
+        [elem for elem in [
+            row.replace('  ', ' ').strip().split(' ') for row in file
+        ]],
+        dtype=np.int32
+    ).reshape(-1)
+    file.close()
 
-def load_kinetics(config, fold=0):
-    
-    X_train = np.load('/media/Datasets/kinetics/train_data_joint.npy') #[...,0] # get first pose
-    X_train = np.moveaxis(X_train,1,3)
-    X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], -1)
-    X_train = X_train[:,::config['SUBSAMPLE'],:]
-    y_train = np.load('/media/Datasets/kinetics/train_label.pkl', allow_pickle=True)
-    y_train = np.transpose(np.array(y_train))[:,1].astype('float32') # get class only
-    
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
-                                                      test_size=config['VAL_SIZE'],
-                                                      random_state=config['SEEDS'][fold],
-                                                      stratify=y_train)
-    
-    X_test = np.load('/media/Datasets/kinetics/val_data_joint.npy') #[...,0] # get first pose
-    X_test = np.moveaxis(X_test,1,3)
-    X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], -1)
-    X_test = X_test[:,::config['SUBSAMPLE'],:]
-    y_test = np.load('/media/Datasets/kinetics/val_label.pkl', allow_pickle=True)
-    y_test = np.transpose(np.array(y_test))[:,1].astype('float32') # get class only
-    
-    train_gen = callable_gen(kinetics_generator(X_train, y_train, config['BATCH_SIZE']))
-    val_gen = callable_gen(kinetics_generator(X_val, y_val, config['BATCH_SIZE']))
-    test_gen = callable_gen(kinetics_generator(X_test, y_test, config['BATCH_SIZE']))
-    
-    return train_gen, val_gen, test_gen, len(y_train), len(y_test)
+    # for 0-based indexing
+    return y_
+
+def load_X(X_path, n_steps=32):
+    file = open(X_path, 'r')
+    X_ = np.array(
+        [elem for elem in [
+            row.split(',') for row in file
+        ]],
+        dtype=np.float64
+    )
+    file.close()
+    blocks = int(len(X_) / n_steps)
+
+    X_ = np.array(np.split(X_,blocks))
+
+    return X_
 
 
 def load_mpose(dataset, split, verbose=False, legacy=False, logger = None):
@@ -76,34 +76,42 @@ def load_mpose(dataset, split, verbose=False, legacy=False, logger = None):
     if legacy:
         return load_dataset_legacy(data_folder=f'datasets/openpose_bm/split{split}/base_vars/')
     
-    d = MPOSE(pose_extractor=dataset, 
-                    split=split, 
-                    preprocess=None, 
-                    velocities=True, 
-                    remove_zip=False)
-    logger.log(f"dataset info: {d.get_info()} ")
-    X_train, y_train, X_test, y_test = d.get_data()
-    logger.save_log(f"X_train shape: {X_train.shape}")
-    logger.save_log(f"y_train shape: {y_train.shape}")
-    logger.save_log(f"X_train[] shape: {X_train[1000,15,:,:]}")
+    # d = MPOSE(pose_extractor=dataset, 
+    #                 split=split, 
+    #                 preprocess=None, 
+    #                 velocities=True, 
+    #                 remove_zip=False)
+    # logger.save_log(f"dataset info: {d.get_info()} ")
+    # X_train, y_train, X_test, y_test = d.get_data()
+    # logger.save_log(f"X_train shape: {X_train.shape}")
+    # logger.save_log(f"y_train shape: {y_train.shape}")
+    # logger.save_log(f"X_train[] shape: {X_train[1000,15,:,:]}")
     if 'legacy' not in dataset:
-        d.reduce_keypoints()
-        d.scale_and_center()
-        d.remove_confidence()
-        d.flatten_features()
-        logger.save_log(f"dataset info if 'legacy' not in dataset:: {d.get_info()} ")
-        logger.save_log(f"X_train shape: {X_train.shape}")
-        logger.save_log(f"y_train shape: {y_train.shape}")
-        logger.save_log(f"X_train[] shape: {X_train[1000,15,:,:]}")
-        #d.reduce_labels()
-        return d.get_data()
+        # d.reduce_keypoints()
+        # X_train, y_train, X_test, y_test = d.get_data()
+        # logger.save_log(f"X_train[reduce_keypoints] shape: {X_train[1000,15,:,:]}")
+        # d.scale_and_center()
+        # X_train, y_train, X_test, y_test = d.get_data()
+        # logger.save_log(f"X_train[scale_and_center] shape: {X_train[1000,15,:,:]}")
+        # d.remove_confidence()
+        # X_train, y_train, X_test, y_test = d.get_data()
+        # logger.save_log(f"X_train[remove_confidence] shape: {X_train[1000,15,:]}")
+        # d.flatten_features()
+        # X_train, y_train, X_test, y_test = d.get_data()
+        # logger.save_log(f"X_train[flatten_features] shape: {X_train[1000,15,:]}")
+        # #d.reduce_labels()
+        # return d.get_data()
+        X_train = load_X(f'/Users/chouchou/chou/github/ai4life/X.txt')
+        y_train = load_y(f'/Users/chouchou/chou/github/ai4life/y.txt')
+        X_test = load_X(f'/Users/chouchou/chou/github/ai4life/X_test.txt')
+        y_test = load_y(f'/Users/chouchou/chou/github/ai4life/y_test.txt')
+        return X_train, y_train, X_test, y_test
     
     if 'openpose' in dataset:
         X_train, y_train, X_test, y_test = d.get_data()
         return X_train, transform_labels(y_train), X_test, transform_labels(y_test)
     else:
         return d.get_data()
-        
 
 def random_flip(x, y):
     time_steps = x.shape[0]
@@ -176,3 +184,31 @@ def load_dataset_legacy(data_folder, verbose=True):
         print(f"X_test shape: {X_test.shape}")
         print(f"y_test shape: {y_test.shape}")
     return X_train, y_train, X_test, y_test
+
+
+def load_kinetics(config, fold=0):
+    
+    X_train = np.load('/media/Datasets/kinetics/train_data_joint.npy') #[...,0] # get first pose
+    X_train = np.moveaxis(X_train,1,3)
+    X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], -1)
+    X_train = X_train[:,::config['SUBSAMPLE'],:]
+    y_train = np.load('/media/Datasets/kinetics/train_label.pkl', allow_pickle=True)
+    y_train = np.transpose(np.array(y_train))[:,1].astype('float32') # get class only
+    
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
+                                                      test_size=config['VAL_SIZE'],
+                                                      random_state=config['SEEDS'][fold],
+                                                      stratify=y_train)
+    
+    X_test = np.load('/media/Datasets/kinetics/val_data_joint.npy') #[...,0] # get first pose
+    X_test = np.moveaxis(X_test,1,3)
+    X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], -1)
+    X_test = X_test[:,::config['SUBSAMPLE'],:]
+    y_test = np.load('/media/Datasets/kinetics/val_label.pkl', allow_pickle=True)
+    y_test = np.transpose(np.array(y_test))[:,1].astype('float32') # get class only
+    
+    train_gen = callable_gen(kinetics_generator(X_train, y_train, config['BATCH_SIZE']))
+    val_gen = callable_gen(kinetics_generator(X_val, y_val, config['BATCH_SIZE']))
+    test_gen = callable_gen(kinetics_generator(X_test, y_test, config['BATCH_SIZE']))
+    
+    return train_gen, val_gen, test_gen, len(y_train), len(y_test)

@@ -51,7 +51,7 @@ def scaled_dot_product_attention(q, k, v, mask):
     attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)  # (..., seq_len_q, seq_len_k)
 
     output = tf.matmul(attention_weights, v)  # (..., seq_len_q, depth_v)
-
+    # print("q,k,v,mask",q, k, v, mask)
     return output, attention_weights
 
 def point_wise_feed_forward_network(d_model, d_ff, activation):
@@ -96,7 +96,9 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         # attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)
         scaled_attention, attention_weights = scaled_dot_product_attention(
             q, k, v, mask)
-
+        # print("q,k,v,mask",q, k, v, mask)
+        # print("scaled_attention",scaled_attention.shape)
+        # print("attention_weights",attention_weights.shape)
         scaled_attention = tf.transpose(scaled_attention, perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
 
         concat_attention = tf.reshape(scaled_attention, 
@@ -132,11 +134,11 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
 
 	
     def call(self, x, training):
+        
         attn_output, _ = self.mha(x, x, x, None)  # (batch_size, input_seq_len, d_model)
             
         attn_output = self.dropout1(attn_output, training=training)
         out1 = self.layernorm1(x + attn_output)  # (batch_size, input_seq_len, d_model)
-
         ffn_output = self.ffn(out1)  # (batch_size, input_seq_len, d_model)
         ffn_output = self.dropout2(ffn_output, training=training)
         out2 = self.layernorm2(out1 + ffn_output)  # (batch_size, input_seq_len, d_model)
@@ -144,11 +146,14 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
         return out2
 
 class TransformerEncoder(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads, d_ff, dropout, activation, n_layers, **kwargs):
+    def __init__(self, d_model, num_heads, d_ff, dropout, activation, n_layers, logger, **kwargs):
         super(TransformerEncoder, self).__init__(**kwargs)
         self.n_layers = n_layers
         self.encoder_layers = [TransformerEncoderLayer(d_model, num_heads,
                                                        d_ff, dropout, activation) for i in range(n_layers)]
+        # logger.save_log("TransformerEncoder: {} layers".format(n_layers))
+        # logger.save_log("TransformerEncoder: d_model = {}".format(self.encoder_layers))
+
         
     def get_config(self):
         config = {

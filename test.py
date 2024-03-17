@@ -11,7 +11,7 @@
 
 # # Load the networks inputs
 
-# def load_X(X_path):
+# def load_X(X_path, n_steps=32):
 #     file = open(X_path, 'r')
 #     X_ = np.array(
 #         [elem for elem in [
@@ -34,11 +34,14 @@
 #             row.replace('  ', ' ').strip().split(' ') for row in file
 #         ]],
 #         dtype=np.int32
-#     )
+#     ).reshape(-1)
 #     file.close()
 
 #     # for 0-based indexing
-#     return y_ - 1
+#     return y_
+
+# print(load_X("/Users/chouchou/chou/github/ai4life/X.txt").shape)
+
 
 # X_train = load_X(X_train_path)
 # # X_test = load_X(X_test_path)

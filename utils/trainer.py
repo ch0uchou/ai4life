@@ -60,35 +60,34 @@ class Trainer:
         logger.save_log(f"pos_emb: {self.pos_emb}")
         
     def build_act(self, transformer):
-        self.logger.save_log(f"transformer: {transformer}")
-        inputs = tf.keras.layers.Input(shape=(self.config[self.config['DATASET']]['FRAMES'] // self.config['SUBSAMPLE'], 
-                                              self.config[self.config['DATASET']]['KEYPOINTS'] * self.config['CHANNELS']))
-        self.logger.save_log(f"inputs = tf.keras.layers.Input: {inputs}")
+        inputs = tf.keras.layers.Input(shape=(32 // self.config['SUBSAMPLE'], 
+                                              17 * 2))
+        # self.logger.save_log(f"inputs = tf.keras.layers.Input: {inputs}")
         x = tf.keras.layers.Dense(self.d_model)(inputs)
-        self.logger.save_log(f"x = tf.keras.layers.Dense(self.d_model)(inputs): {x}")
-        x = PatchClassEmbedding(self.d_model, self.config[self.config['DATASET']]['FRAMES'] // self.config['SUBSAMPLE'], 
+        # self.logger.save_log(f"x = tf.keras.layers.Dense(self.d_model)(inputs): {x}")
+        x = PatchClassEmbedding(self.d_model, 32 // self.config['SUBSAMPLE'], 
                                 pos_emb=None)(x)
-        self.logger.save_log(f"x = PatchClassEmbedding: {x}")
+        # self.logger.save_log(f"x = PatchClassEmbedding: {x}")
         x = transformer(x)
-        self.logger.save_log(f"x = transformer(x): {x}")
+        # self.logger.save_log(f"x = transformer(x): {x}")
         x = tf.keras.layers.Lambda(lambda x: x[:,0,:])(x)
-        self.logger.save_log(f"x = tf.keras.layers.Lambda(lambda x: x[:,0,:])(x): {x}")
+        # self.logger.save_log(f"x = tf.keras.layers.Lambda(lambda x: x[:,0,:])(x): {x}")
         x = tf.keras.layers.Dense(self.mlp_head_size)(x)
-        self.logger.save_log(f"x = tf.keras.layers.Dense(self.mlp_head_size)(x): {x}")
-        outputs = tf.keras.layers.Dense(self.config[self.config['DATASET']]['CLASSES'])(x)
-        self.logger.save_log(f"outputs = tf.keras.layers.Dense(self.config[self.config['DATASET']]['CLASSES'])(x): {outputs}")
+        # self.logger.save_log(f"x = tf.keras.layers.Dense(self.mlp_head_size)(x): {x}")
+        outputs = tf.keras.layers.Dense(22)(x)
+        # self.logger.save_log(f"outputs = tf.keras.layers.Dense(22)(x): {outputs}")
         return tf.keras.models.Model(inputs, outputs)
 
     
     def get_model(self):
-        transformer = TransformerEncoder(self.d_model, self.n_heads, self.d_ff, self.dropout, self.activation, self.n_layers)
+        transformer = TransformerEncoder(self.d_model, self.n_heads, self.d_ff, self.dropout, self.activation, self.n_layers, logger=self.logger)
         self.model = self.build_act(transformer)
-        self.logger.save_log(f"self.model: {self.model}")
+        # self.logger.save_log(f"self.model: {self.model}")
         
         self.train_steps = np.ceil(float(self.train_len)/self.config['BATCH_SIZE'])
         self.test_steps = np.ceil(float(self.test_len)/self.config['BATCH_SIZE'])
-        self.logger.save_log(f"self.train_steps: {self.train_steps}")
-        self.logger.save_log(f"self.test_steps: {self.test_steps}")
+        # self.logger.save_log(f"self.train_steps: {self.train_steps}")
+        # self.logger.save_log(f"self.test_steps: {self.test_steps}")
         
         if self.config['SCHEDULER']:
             lr = CustomSchedule(self.d_model, 
@@ -97,7 +96,6 @@ class Trainer:
 
         else:
             lr = 3 * 10**self.config['LR_MULT']
-        
         optimizer = tfa.optimizers.AdamW(learning_rate=lr, weight_decay=self.config['WEIGHT_DECAY'])
 
         self.model.compile(optimizer=optimizer,
@@ -127,19 +125,22 @@ class Trainer:
                                                           legacy=self.config['LEGACY'], verbose=False, logger=self.logger)
             self.train_len = len(y_train)
             self.test_len = len(y_test)
+            # self.logger.save_log(f"X_train: {X_train.shape}")
+            # self.logger.save_log(f"y_train: {y_train.shape}")
+            # self.logger.save_log(f"X_train[] shape: {X_train[1000,15,:]}")
+
             X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
                                                               test_size=self.config['VAL_SIZE'],
                                                               random_state=self.config['SEEDS'][self.fold],
                                                               stratify=y_train)
-            self.logger.save_log(f"X_train: {X_train.shape}")
-            self.logger.save_log(f"y_train: {y_train.shape}")
-            self.logger.save_log(f"X_train[] shape: {X_train[1000,15,:,:]}")
+            # self.logger.save_log(f"X_train: {X_train.shape}")
+            # self.logger.save_log(f"y_train: {y_train.shape}")
             self.ds_train = tf.data.Dataset.from_tensor_slices((X_train, y_train))
             self.ds_val = tf.data.Dataset.from_tensor_slices((X_val, y_val))
             self.ds_test = tf.data.Dataset.from_tensor_slices((X_test, y_test))
         
-        self.logger.save_log(f"ds_train: {self.ds_train}")
-        self.ds_train = self.ds_train.map(lambda x,y : one_hot(x,y,self.config[self.config['DATASET']]['CLASSES']), 
+        # self.logger.save_log(f"ds_train: {self.ds_train}")
+        self.ds_train = self.ds_train.map(lambda x,y : one_hot(x,y,22), 
                                           num_parallel_calls=tf.data.experimental.AUTOTUNE)
         self.ds_train = self.ds_train.cache()
         self.ds_train = self.ds_train.map(random_flip, num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -147,30 +148,30 @@ class Trainer:
         self.ds_train = self.ds_train.shuffle(X_train.shape[0])
         self.ds_train = self.ds_train.batch(self.config['BATCH_SIZE'])
         self.ds_train = self.ds_train.prefetch(tf.data.experimental.AUTOTUNE)
-        self.logger.save_log(f"ds_train: {self.ds_train}")
+        # self.logger.save_log(f"ds_train: {self.ds_train}")
 
-        self.ds_val = self.ds_val.map(lambda x,y : one_hot(x,y,self.config[self.config['DATASET']]['CLASSES']), 
+        self.ds_val = self.ds_val.map(lambda x,y : one_hot(x,y,22), 
                                       num_parallel_calls=tf.data.experimental.AUTOTUNE)
         self.ds_val = self.ds_val.cache()
         self.ds_val = self.ds_val.batch(self.config['BATCH_SIZE'])
         self.ds_val = self.ds_val.prefetch(tf.data.experimental.AUTOTUNE)
 
         
-        self.ds_test = self.ds_test.map(lambda x,y : one_hot(x,y,self.config[self.config['DATASET']]['CLASSES']), 
+        self.ds_test = self.ds_test.map(lambda x,y : one_hot(x,y,22), 
                                         num_parallel_calls=tf.data.experimental.AUTOTUNE)
         self.ds_test = self.ds_test.cache()
         self.ds_test = self.ds_test.batch(self.config['BATCH_SIZE'])
         self.ds_test = self.ds_test.prefetch(tf.data.experimental.AUTOTUNE)
         
     def get_random_hp(self):
-        # self.config['RN_STD'] = self.trial.suggest_float("RN_STD", 0, 0.03, 0.01)
+        self.config['RN_STD'] = self.trial.suggest_float("RN_STD", 0, 0.03, 0.01)
         self.config['WEIGHT_DECAY'] = self.trial.suggest_float("WD", 1e-5, 1e-3, step=1e-5)
         self.config['N_EPOCHS'] = int(self.trial.suggest_float("EPOCHS", 50, 100, step=10))
         self.config['WARMUP_PERC'] = self.trial.suggest_float("WARMUP_PERC", 0.1, 0.4, step=0.1)
         self.config['LR_MULT'] = self.trial.suggest_float("LR_MULT", -5, -4, step=1)
         self.config['SCHEDULER'] = self.trial.suggest_categorical("SCHEDULER", [False, False])
         
-        # self.logger.save_log('\nRN_STD: {:.2e}'.format(self.config['RN_STD']))
+        self.logger.save_log('\nRN_STD: {:.2e}'.format(self.config['RN_STD']))
         self.logger.save_log('\nEPOCHS: {}'.format(self.config['N_EPOCHS']))
         self.logger.save_log('WARMUP_PERC: {:.2e}'.format(self.config['WARMUP_PERC']))
         self.logger.save_log('WEIGHT_DECAY: {:.2e}'.format(self.config['WEIGHT_DECAY']))
