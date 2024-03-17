@@ -66,7 +66,7 @@ def load_X(X_path, n_steps=32):
     file.close()
     blocks = int(len(X_) / n_steps)
 
-    X_ = np.array(np.split(X_,blocks))
+    X_ = np.array(np.split(X_,blocks)).reshape(blocks, n_steps, 17, 2)
 
     return X_
 
@@ -89,22 +89,42 @@ def load_mpose(dataset, split, verbose=False, legacy=False, logger = None):
     if 'legacy' not in dataset:
         # d.reduce_keypoints()
         # X_train, y_train, X_test, y_test = d.get_data()
-        # logger.save_log(f"X_train[reduce_keypoints] shape: {X_train[1000,15,:,:]}")
+        # logger.save_log(f"X_train[reduce_keypoints] shape: {X_train.shape}")
         # d.scale_and_center()
         # X_train, y_train, X_test, y_test = d.get_data()
-        # logger.save_log(f"X_train[scale_and_center] shape: {X_train[1000,15,:,:]}")
+        # logger.save_log(f"X_train[scale_and_center] shape: {X_train.shape}")
         # d.remove_confidence()
         # X_train, y_train, X_test, y_test = d.get_data()
-        # logger.save_log(f"X_train[remove_confidence] shape: {X_train[1000,15,:]}")
+        # logger.save_log(f"X_train[remove_confidence] shape: {X_train.shape}")
         # d.flatten_features()
         # X_train, y_train, X_test, y_test = d.get_data()
-        # logger.save_log(f"X_train[flatten_features] shape: {X_train[1000,15,:]}")
+        # logger.save_log(f"X_train[flatten_features] shape: {X_train.shape}")
         # #d.reduce_labels()
         # return d.get_data()
         X_train = load_X(f'X.txt')
         y_train = load_y(f'Y.txt')
         X_test = load_X(f'X_test.txt')
         y_test = load_y(f'Y_test.txt')
+        for X in [X_train, X_test]:
+            seq_list = []
+            for seq in X:
+                pose_list = []
+                for pose in seq:
+                    zero_point = (pose[1, :2] + pose[2,:2]) / 2
+                    module_keypoint = (pose[7, :2] + pose[8,:2]) / 2
+                    scale_mag = np.linalg.norm(zero_point - module_keypoint)
+                    if scale_mag < 1:
+                        scale_mag = 1
+                    pose[:,:2] = (pose[:,:2] - zero_point) / scale_mag
+                    pose_list.append(pose)
+                seq = np.stack(pose_list)
+                seq_list.append(seq)
+            X = np.stack(seq_list)
+        
+        X_train = np.delete(X_train, [], 2)
+        X_test = np.delete(X_test, [], 2)
+        X_train = X_train.reshape(X_train.shape[0], 32, -1)
+        X_test = X_test.reshape(X_test.shape[0], 32, -1)
         return X_train, y_train, X_test, y_test
     
     if 'openpose' in dataset:
