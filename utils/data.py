@@ -101,10 +101,10 @@ def load_mpose(dataset, split, verbose=False, legacy=False, logger = None):
         # logger.save_log(f"X_train[flatten_features] shape: {X_train[1000,15,:]}")
         # #d.reduce_labels()
         # return d.get_data()
-        X_train = load_X(f'/Users/chouchou/chou/github/ai4life/X.txt')
-        y_train = load_y(f'/Users/chouchou/chou/github/ai4life/y.txt')
-        X_test = load_X(f'/Users/chouchou/chou/github/ai4life/X_test.txt')
-        y_test = load_y(f'/Users/chouchou/chou/github/ai4life/y_test.txt')
+        X_train = load_X(f'X.txt')
+        y_train = load_y(f'y.txt')
+        X_test = load_X(f'X_test.txt')
+        y_test = load_y(f'y_test.txt')
         return X_train, y_train, X_test, y_test
     
     if 'openpose' in dataset:
