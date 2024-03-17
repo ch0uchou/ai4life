@@ -102,9 +102,9 @@ def load_mpose(dataset, split, verbose=False, legacy=False, logger = None):
         # #d.reduce_labels()
         # return d.get_data()
         X_train = load_X(f'X.txt')
-        y_train = load_y(f'y.txt')
+        y_train = load_y(f'Y.txt')
         X_test = load_X(f'X_test.txt')
-        y_test = load_y(f'y_test.txt')
+        y_test = load_y(f'Y_test.txt')
         return X_train, y_train, X_test, y_test
     
     if 'openpose' in dataset:
