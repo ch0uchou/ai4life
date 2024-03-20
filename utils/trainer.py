@@ -192,6 +192,8 @@ class Trainer:
                        #validation_steps=self.train_steps//9
                       )
         accuracy_test, balanced_accuracy = self.evaluate(weights=self.bin_path+self.name_model_bin)  
+        self.logger.save_log(f"{self.history.history["loss"]}")
+        self.logger.save_log(f"{self.history.history["val_loss"]}")
         return accuracy_test, balanced_accuracy
 
     def evaluate(self, weights=None):
@@ -244,10 +246,7 @@ class Trainer:
                 acc, bal_acc = self.do_training()
 
                 acc_list.append(acc)
-                bal_acc_list.append(bal_acc)
-                with open(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_{fold}history.pkl', 'wb') as outp:
-                    pickle.dump(self.history, outp, pickle.HIGHEST_PROTOCOL)
-                
+                bal_acc_list.append(bal_acc)                
             np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_accuracy.npy', acc_list)
             np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_balanced_accuracy.npy', bal_acc_list)
 
