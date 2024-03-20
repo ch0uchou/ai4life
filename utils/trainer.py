@@ -23,6 +23,7 @@ from utils.data import load_mpose, load_kinetics, random_flip, random_noise, one
 from utils.tools import CustomSchedule, CosineSchedule
 from utils.tools import Logger
 import matplotlib.pyplot as plt
+import pickle
 
 
 # TRAINER CLASS 
@@ -190,7 +191,7 @@ class Trainer:
                        #steps_per_epoch=int(self.train_steps*0.9),
                        #validation_steps=self.train_steps//9
                       )
-        accuracy_test, balanced_accuracy = self.evaluate(weights=self.bin_path+self.name_model_bin)      
+        accuracy_test, balanced_accuracy = self.evaluate(weights=self.bin_path+self.name_model_bin)  
         return accuracy_test, balanced_accuracy
 
     def evaluate(self, weights=None):
@@ -214,17 +215,6 @@ class Trainer:
 
         text = f"Accuracy Test: {accuracy_test} <> Balanced Accuracy: {balanced_accuracy}\n"
         self.logger.save_log(text)
-        train_loss = self.history.history['loss']
-        val_loss = self.history.history['val_loss']
-        plt.figure(figsize=(10, 5))
-        plt.plot(train_loss, label='Training Loss', color='blue')
-        plt.plot(val_loss, label='Validation Loss', color='red')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.title('Training and Validation Loss')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
         return accuracy_test, balanced_accuracy
 
     def do_test(self):
@@ -255,6 +245,8 @@ class Trainer:
 
                 acc_list.append(acc)
                 bal_acc_list.append(bal_acc)
+                with open(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_history.pkl', 'wb') as outp:
+                    pickle.dump(self.history, outp, pickle.HIGHEST_PROTOCOL)
                 
             np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_accuracy.npy', acc_list)
             np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_balanced_accuracy.npy', bal_acc_list)
