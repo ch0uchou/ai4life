@@ -22,6 +22,7 @@ from utils.transformer import TransformerEncoder, PatchClassEmbedding, Patches
 from utils.data import load_mpose, load_kinetics, random_flip, random_noise, one_hot
 from utils.tools import CustomSchedule, CosineSchedule
 from utils.tools import Logger
+import matplotlib.pyplot as plt
 
 
 # TRAINER CLASS 
@@ -182,7 +183,7 @@ class Trainer:
         self.get_data()
         self.get_model()
 
-        self.model.fit(self.ds_train,
+        self.history = self.model.fit(self.ds_train,
                        epochs=self.config['N_EPOCHS'], initial_epoch=0,
                        validation_data=self.ds_val,
                        callbacks=[self.checkpointer], verbose=self.config['VERBOSE'],
@@ -213,7 +214,17 @@ class Trainer:
 
         text = f"Accuracy Test: {accuracy_test} <> Balanced Accuracy: {balanced_accuracy}\n"
         self.logger.save_log(text)
-        
+        train_loss = self.history.history['loss']
+        val_loss = self.history.history['val_loss']
+        plt.figure(figsize=(10, 5))
+        plt.plot(train_loss, label='Training Loss', color='blue')
+        plt.plot(val_loss, label='Validation Loss', color='red')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Training and Validation Loss')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
         return accuracy_test, balanced_accuracy
 
     def do_test(self):
