@@ -245,7 +245,7 @@ class Trainer:
 
                 acc_list.append(acc)
                 bal_acc_list.append(bal_acc)
-                with open(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_history.pkl', 'wb') as outp:
+                with open(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_{fold}history.pkl', 'wb') as outp:
                     pickle.dump(self.history, outp, pickle.HIGHEST_PROTOCOL)
                 
             np.save(self.config['RESULTS_DIR'] + self.config['MODEL_NAME'] + '_' + self.config['DATASET'] + f'_{split}_accuracy.npy', acc_list)
