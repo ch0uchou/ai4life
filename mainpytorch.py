@@ -1,3 +1,4 @@
+123
 import numpy as np
 import torch.nn as nn
 import torch
@@ -40,9 +41,9 @@ LABELS = [
 ]
 
 X_train_path = "X.txt"
-X_test_path = "Y.txt"
+X_test_path = "X_test.txt"
 
-y_train_path = "X_test.txt"
+y_train_path = "Y.txt"
 y_test_path = "Y_test.txt"
 
 n_steps = 32 # 32 timesteps per series
@@ -160,7 +161,7 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
     pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
     pose_sequence_tensor = pose_sequence_tensor
     category_tensor = y[ran_num:ran_num+batch_size,:]
-    return 00.long(), pose_sequence_tensor
+    return category_tensor.long(), pose_sequence_tensor
 
 criterion = nn.CrossEntropyLoss()
 learning_rate = 0.0005
