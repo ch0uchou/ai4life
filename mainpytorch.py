@@ -253,7 +253,7 @@ f1 = np.zeros(n_categories)
 # Go through a bunch of examples and record which are correctly guessed
 for i in range(n_confusion):
     category_tensor, inputs = randomTrainingExampleBatch(1,'test',i)
-    print(f"{inputs}")
+    print(f"input: {inputs}")
     category = LABELS[int(category_tensor[0])-1]
     inputs = inputs.to(device)
     output = rnn(inputs)
