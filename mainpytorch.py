@@ -216,7 +216,7 @@ for iter in range(1, n_iters + 1):
         all_losses.append(current_loss / plot_every)
         current_loss = 0
 
-torch.save(rnn.state_dict(),'lstm_6_bn.pkl')
+torch.save(rnn.state_dict(),'lstm_6_bn_2.pkl')
 
 def test(flag):
     if flag == 'train':
@@ -253,6 +253,7 @@ f1 = np.zeros(n_categories)
 # Go through a bunch of examples and record which are correctly guessed
 for i in range(n_confusion):
     category_tensor, inputs = randomTrainingExampleBatch(1,'test',i)
+    print(f"{inputs}")
     category = LABELS[int(category_tensor[0])-1]
     inputs = inputs.to(device)
     output = rnn(inputs)
