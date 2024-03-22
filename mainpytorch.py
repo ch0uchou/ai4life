@@ -216,7 +216,7 @@ for iter in range(1, n_iters + 1):
         all_losses.append(current_loss / plot_every)
         current_loss = 0
 
-torch.save(rnn.state_dict(),'lstm_6_bn_2.pkl')
+torch.save(rnn.state_dict(),'lstm.pkl')
 
 def test(flag):
     if flag == 'train':
