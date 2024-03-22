@@ -105,7 +105,7 @@ class LSTM(nn.Module):
     super(LSTM,self).__init__()
     self.hidden_dim = hidden_dim
     self.output_dim = output_dim
-    self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True)
+    self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
     self.fc = torch.nn.Linear(hidden_dim,output_dim)
     self.bn = nn.BatchNorm1d(32)
 
@@ -215,7 +215,7 @@ for iter in range(1, n_iters + 1):
         all_losses.append(current_loss / plot_every)
         current_loss = 0
 
-torch.save(rnn.state_dict(),'lstm.pkl')
+torch.save(rnn.state_dict(),'bidirection_lstm.pkl')
 
 def test(flag):
     if flag == 'train':
@@ -252,7 +252,7 @@ f1 = np.zeros(n_categories)
 # Go through a bunch of examples and record which are correctly guessed
 for i in range(n_confusion):
     category_tensor, inputs = randomTrainingExampleBatch(1,'test',i)
-    print(f"input: {inputs}")
+    # print(f"input: {inputs}")
     category = LABELS[int(category_tensor[0])-1]
     inputs = inputs.to(device)
     output = rnn(inputs)
