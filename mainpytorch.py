@@ -194,7 +194,6 @@ for iter in range(1, n_iters + 1):
     category_tensor = torch.squeeze(category_tensor)
 
     optimizer.zero_grad()
-    print(input_sequence.size())
     output = rnn(input_sequence)
     loss = criterion(output, category_tensor)
     loss.backward()
