@@ -106,6 +106,9 @@ class LSTM(nn.Module):
     self.hidden_dim = hidden_dim
     self.output_dim = output_dim
     self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
+    self.lstm1 = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True)
+    print(self.lstm)
+    print(self.lstm1)
     self.fc = torch.nn.Linear(hidden_dim,output_dim)
     self.bn = nn.BatchNorm1d(32)
 
