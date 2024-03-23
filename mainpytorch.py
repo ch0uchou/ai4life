@@ -214,7 +214,7 @@ for iter in range(1, n_iters + 1):
     input_sequence = input_sequence.to(device)
     category_tensor = category_tensor.to(device)
     category_tensor = torch.squeeze(category_tensor)
-
+    print(category_tensor.size())
     optimizer.zero_grad()
     output = rnn(input_sequence)
     loss = criterion(output, category_tensor)
