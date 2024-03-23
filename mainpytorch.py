@@ -52,19 +52,19 @@ split_ratio = 0.8
 # Load the networks inputs
 
 def load_X(X_path):
-    file = open(X_path, 'r')
-    X_ = np.array(
-        [elem for elem in [
-            row.split(',') for row in file
-        ]],
-        dtype=np.float32
-    )
-    file.close()
-    blocks = int(len(X_) / n_steps)
+  file = open(X_path, 'r')
+  X_ = np.array(
+    [elem for elem in [
+      [round(float(num), 5) for num in row.split(',')] for row in file
+    ]],
+    dtype=np.float32
+  )
+  file.close()
+  blocks = int(len(X_) / n_steps)
 
-    X_ = np.array(np.split(X_,blocks))
+  X_ = np.array(np.split(X_, blocks))
 
-    return X_
+  return X_
 
 # Load the networks outputs
 def load_y(y_path):
