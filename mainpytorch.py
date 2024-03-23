@@ -92,7 +92,7 @@ def load_y(y_path):
     file.close()
 
     # for 0-based indexing
-    return y_
+    return y_ +1
 
 X_train = load_X(X_train_path)
 X_test = load_X(X_test_path)
