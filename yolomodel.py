@@ -41,7 +41,7 @@ model = YOLO('yolov8n-pose.pt')  # load an official model
 
 # Predict with the model
 def predict(image_path):
-  results = model(image_path)  # predict on an image
+  results = model(image_path, show_conf=False, show_boxes=False)  # predict on an image
   keypoints = results[0].keypoints.xyn.cpu().numpy()  # get keypoints (x, y) coordinates
   if keypoints is None:
     print('No person detected in the image')
