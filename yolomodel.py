@@ -21,7 +21,24 @@ def predict(image_path):
       str += ','
   return str
 
-# def write_data(inputX,):
+def write_data(dataX, dataY, file_path):
+  if dataY != "":
+    if len(dataX) == 32:
+      with open(f'{file_path}X.txt', 'a') as file:
+        file.writelines(dataX)
+        # file.writelines(f"dem 3x2 : {len(dataX)} \n")
+      with open(f'{file_path}Y.txt', 'a') as file:
+        file.writelines(f'{dataY}\n')
+      return True
+    else:
+      print("Can't collect 17 keypoint")
+      return False
+  else:
+    if len(dataX) == 32:
+      return dataX
+    else:
+      print("Can't collect 17 keypoint")
+      return False
 
 def get_video_frame(video_path, label, file_path, n_steps = 32):
   # Mở video
@@ -43,6 +60,7 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
   time_in_seconds = (duration_seconds / (n_steps + 1))
 
   frame_ = n_steps
+  out_X = []
   while frame_:
 
     time_in_milliseconds = (n_steps-frame_)*time_in_seconds*1000
@@ -59,11 +77,12 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
 
     with torch.no_grad():
       output= predict(frame)
-      print(output)
+      out_X.append(output)
 
     frame_ -= 1
 
   # Đóng video
   cap.release()
+  return write_data(out_X, label, file_path)
 
 get_video_frame("tricep pushdown_49.mp4",1,"data")
