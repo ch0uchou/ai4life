@@ -19,7 +19,7 @@ def predict(image_path):
     str += f'{humant_pose[i]}'
     if i != len(humant_pose) - 1:
       str += ','
-  return humant_pose
+  return str
 
 # def write_data(inputX,):
 
