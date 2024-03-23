@@ -5,7 +5,7 @@ model = YOLO('yolov8n-pose.pt')  # load an official model
 
 # Predict with the model
 results = model(source="tricep pushdown_49.mp4")  # predict on an image
-print(results[0])
+print(results[0].keypoints.xyn.cpu().numpy())
 # keypoints = results[0].keypoints.xyn.cpu().numpy()  # get keypoints (x, y) coordinates
 # if keypoints is None:
 #   print('No person detected in the image')
