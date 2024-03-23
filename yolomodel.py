@@ -11,7 +11,7 @@ model = YOLO('yolov8n-pose.pt')  # load an official model
 # Predict with the model
 def predict(image_path):
   results = model(image_path, show_labels=False,	show_conf=False, show_boxes=False)  # predict on an image
-  keypoints = results[0].keypoints.xyxy.cpu().numpy()  # get keypoints (x, y) coordinates
+  keypoints = results[0].keypoints.xy.cpu().numpy()  # get keypoints (x, y) coordinates
   humant_pose = keypoints[0,:,:]  # get the first person's keypoints
   humant_pose = humant_pose.reshape(-1)  # reshape to (N,) format
   str = ''
