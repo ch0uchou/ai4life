@@ -11,8 +11,17 @@ import time
 import math
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import argparse
+from yolomodel import *
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+parser = argparse.ArgumentParser(description='Process some input')
+parser.add_argument('--data', default='data', type=str, help='Dataset path', required=False)   
+parser.add_argument('--train','-train', action='store_true', help='Run a training') 
+parser.add_argument('--test', '-test', action='store_true', help='Run a test') 
+parser.add_argument('--model', default=None, type=str, help='Model path', required=False)   
+args = parser.parse_args()
+dataset_folder = args.data
 
 LABELS = [
   "russian twist",
@@ -39,11 +48,16 @@ LABELS = [
   "barbell biceps curl"
 ]
 
-X_train_path = "dataX_train.txt"
-X_test_path = "X_test.txt"
-
-y_train_path = "dataY_train.txt"
-y_test_path = "Y_test.txt"
+if args.train:
+  X_train_path, y_train_path, X_test_path, y_test_path = train(dataset_folder, LABELS)
+elif args.test:
+  X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS)
+else:
+  X_train_path = "dataX_train.txt"
+  y_train_path = "dataY_train.txt"
+  X_test_path = "dataX_test.txt"
+  y_test_path = "dataY_test.txt"
+   
 
 n_steps = 32 # 32 timesteps per series
 n_categories = len(LABELS)
@@ -52,19 +66,19 @@ split_ratio = 0.8
 # Load the networks inputs
 
 def load_X(X_path):
-  file = open(X_path, 'r')
-  X_ = np.array(
-    [elem for elem in [
-      [round(float(num), 5) for num in row.split(',')] for row in file
-    ]],
-    dtype=np.float32
-  )
-  file.close()
-  blocks = int(len(X_) / n_steps)
+    file = open(X_path, 'r')
+    X_ = np.array(
+        [elem for elem in [
+            row.split(',') for row in file
+        ]],
+        dtype=np.float32
+    )
+    file.close()
+    blocks = int(len(X_) / n_steps)
 
-  X_ = np.array(np.split(X_, blocks))
+    X_ = np.array(np.split(X_,blocks))
 
-  return X_
+    return X_
 
 # Load the networks outputs
 def load_y(y_path):
@@ -106,16 +120,12 @@ class LSTM(nn.Module):
     self.hidden_dim = hidden_dim
     self.output_dim = output_dim
     self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
-    self.lstm1 = torch.nn.LSTM(2*hidden_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
-    self.lstm2 = torch.nn.LSTM(2*hidden_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
     self.fc = torch.nn.Linear(2*hidden_dim,output_dim)
     self.bn = nn.BatchNorm1d(32)
 
   def forward(self,inputs):
     x = self.bn(inputs)
-    x,_ = self.lstm(x)
-    x,_ = self.lstm1(x)
-    lstm_out,_ = self.lstm2(x)
+    lstm_out,_ = self.lstm(x)
     out = self.fc(lstm_out[:,-1,:])
     return out
 
@@ -141,7 +151,16 @@ n_hidden = 128
 n_joints = 17*2
 n_categories = 22
 n_layer = 3
-rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
+
+if args.model != None: 
+  rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
+  model_file_path = args.model
+  rnn.load_state_dict(torch.load(model_file_path))
+  rnn.eval()
+  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+  rnn = rnn.to(device)
+else:
+  rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
 
 def categoryFromOutput(output):
   top_n, top_i = output.topk(1)
@@ -166,60 +185,61 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
     category_tensor = y[ran_num:ran_num+batch_size,:]
     return category_tensor.long(), pose_sequence_tensor
 
-criterion = nn.CrossEntropyLoss()
-learning_rate = 0.0005
-optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
-#scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
+if args.model == None: 
+  criterion = nn.CrossEntropyLoss()
+  learning_rate = 0.0005
+  optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
+  #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-n_iters = 100000
-#n_iters = 60000
-print_every = 1000
-plot_every = 1000
-batch_size = 128
+  n_iters = 100000
+  #n_iters = 60000
+  print_every = 1000
+  plot_every = 1000
+  batch_size = 128
 
-# Keep track of losses for plotting
-current_loss = 0
-all_losses = []
+  # Keep track of losses for plotting
+  current_loss = 0
+  all_losses = []
 
-def timeSince(since):
-    now = time.time()
-    s = now - since
-    m = math.floor(s / 60)
-    s -= m * 60
-    return '%dm %ds' % (m, s)
+  def timeSince(since):
+      now = time.time()
+      s = now - since
+      m = math.floor(s / 60)
+      s -= m * 60
+      return '%dm %ds' % (m, s)
 
-start = time.time()
+  start = time.time()
 
-for iter in range(1, n_iters + 1):
+  for iter in range(1, n_iters + 1):
 
-    category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
-    input_sequence = input_sequence.to(device)
-    category_tensor = category_tensor.to(device)
-    category_tensor = torch.squeeze(category_tensor)
+      category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
+      input_sequence = input_sequence.to(device)
+      category_tensor = category_tensor.to(device)
+      category_tensor = torch.squeeze(category_tensor)
 
-    optimizer.zero_grad()
-    output = rnn(input_sequence)
-    loss = criterion(output, category_tensor)
-    loss.backward()
-    optimizer.step()
-    #scheduler.step()
+      optimizer.zero_grad()
+      output = rnn(input_sequence)
+      loss = criterion(output, category_tensor)
+      loss.backward()
+      optimizer.step()
+      #scheduler.step()
 
-    current_loss += loss.item()
+      current_loss += loss.item()
 
-    category = LABELS[int(category_tensor[0])]
+      category = LABELS[int(category_tensor[0])]
 
-    # Print iter number, loss, name and guess
-    if iter % print_every == 0:
-        guess, guess_i = categoryFromOutput(output)
-        correct = '✓' if guess == category else '✗ (%s)' % category
-        print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
+      # Print iter number, loss, name and guess
+      if iter % print_every == 0:
+          guess, guess_i = categoryFromOutput(output)
+          correct = '✓' if guess == category else '✗ (%s)' % category
+          print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
 
-    # Add current loss avg to list of losses
-    if iter % plot_every == 0:
-        all_losses.append(current_loss / plot_every)
-        current_loss = 0
+      # Add current loss avg to list of losses
+      if iter % plot_every == 0:
+          all_losses.append(current_loss / plot_every)
+          current_loss = 0
 
-torch.save(rnn.state_dict(),'bidirection_lstm_2.pkl')
+  torch.save(rnn.state_dict(),'bidirection_lstm_2.pkl')
 
 def test(flag):
     if flag == 'train':
@@ -242,9 +262,9 @@ def test(flag):
 
 print(test('test'))
 print(test('train'))
-
-plt.figure()
-plt.plot(all_losses)
+print(f'loss: {all_losses}')
+# plt.figure()
+# plt.plot(all_losses)
 
 # Keep track of correct guesses in a confusion matrix
 confusion = torch.zeros(n_categories, n_categories)
@@ -267,23 +287,23 @@ for i in range(n_confusion):
 # Normalize by dividing every row by its sum
 for i in range(n_categories):
     confusion[i] = confusion[i] / confusion[i].sum()
+    # Print confusion matrix
+print(confusion.numpy())
+# fig = plt.figure()
+# ax = fig.add_subplot(111)
+# cax = ax.matshow(confusion.numpy())
+# fig.colorbar(cax)
 
-# Set up plot
-fig = plt.figure()
-ax = fig.add_subplot(111)
-cax = ax.matshow(confusion.numpy())
-fig.colorbar(cax)
+# # Set up axes
+# ax.set_xticklabels([''] + LABELS, rotation=90)
+# ax.set_yticklabels([''] + LABELS)
 
-# Set up axes
-ax.set_xticklabels([''] + LABELS, rotation=90)
-ax.set_yticklabels([''] + LABELS)
+# # Force label at every tick
+# ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+# ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
-# Force label at every tick
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
-ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
-
-# sphinx_gallery_thumbnail_number = 2
-plt.show()
+# # sphinx_gallery_thumbnail_number = 2
+# plt.show()
 
 for i in range(n_categories):
     true_positives = confusion[i, i]

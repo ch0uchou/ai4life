@@ -11,7 +11,7 @@ model = YOLO('yolov8n-pose.pt')  # load an official model
 # Predict with the model
 def predict(image_path):
   results = model(image_path, show_labels=False,	show_conf=False, show_boxes=False)  # predict on an image
-  keypoints = results[0].keypoints.xyn.cpu().numpy()  # get keypoints (x, y) coordinates
+  keypoints = results[0].keypoints.xyxy.cpu().numpy()  # get keypoints (x, y) coordinates
   humant_pose = keypoints[0,:,:]  # get the first person's keypoints
   humant_pose = humant_pose.reshape(-1)  # reshape to (N,) format
   str = ''
@@ -105,20 +105,20 @@ def reprocess(folder_path, LABELS):
 
     for video_file in video_files:
       print(video_file, i)
-      if get_video_frame(video_file, i + 1, "data") == True:
+      if get_video_frame(video_file, i + 1, "data1") == True:
         count +=1
   return count
 
 def train(dataset_folder, LABELS):
   print("Training")
   reprocess(dataset_folder, LABELS)
-  file_pathx = "dataX.txt"
-  file_pathy = "dataY.txt"
-  file_path_trainx = "dataX_train.txt"
-  file_path_trainy = "dataY_train.txt"
+  file_pathx = "data1X.txt"
+  file_pathy = "data1Y.txt"
+  file_path_trainx = "data1X_train.txt"
+  file_path_trainy = "data1Y_train.txt"
 
-  file_path_testx = "dataX_test.txt"
-  file_path_testy = "dataY_test.txt"
+  file_path_testx = "data1X_test.txt"
+  file_path_testy = "data1Y_test.txt"
 
   n_steps = 32
   split_ratio = 0.9
