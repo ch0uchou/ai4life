@@ -5,37 +5,6 @@ import os
 import glob
 import argparse
 
-
-parser = argparse.ArgumentParser(description='Process some input')
-parser.add_argument('--data', default='NEWAI4LIFE2024-DATA', type=str, help='Dataset path', required=False)   
-args = parser.parse_args()
-dataset_folder = args.data
-
-LABELS = [
-  "russian twist",
-  "tricep dips",
-  "t bar row",
-  "squat",
-  "shoulder press",
-  "romanian deadlift",
-  "push-up",
-  "plank",
-  "leg extension",
-  "leg raises",
-  "lat pulldown",
-  "incline bench press",
-  "tricep pushdown",
-  "pull up",
-  "lateral raise",
-  "hammer curl",
-  "decline bench press",
-  "hip thrust",
-  "bench press",
-  "chest fly machine",
-  "deadlift",
-  "barbell biceps curl"
-]
-
 # Load a model
 model = YOLO('yolov8n-pose.pt')  # load an official model
 
@@ -122,7 +91,7 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
 # Đường dẫn đến video
 # get_video_frame("tricep pushdown_49.mp4",1,"data")
 
-def reprocess(folder_path):
+def reprocess(folder_path, LABELS):
   count = 0
   current_directory = os.getcwd()
   parent_directory = os.path.dirname(current_directory)
@@ -137,4 +106,55 @@ def reprocess(folder_path):
         count +=1
   return count
 
-reprocess(dataset_folder)
+def train(dataset_folder, LABELS):
+  print("Training")
+  reprocess(dataset_folder, LABELS)
+  file_pathx = "dataX.txt"
+  file_pathy = "dataY.txt"
+  file_path_trainx = "dataX_train.txt"
+  file_path_trainy = "dataY_train.txt"
+
+  file_path_testx = "dataX_test.txt"
+  file_path_testy = "dataY_test.txt"
+
+  n_steps = 32
+  split_ratio = 0.9
+  read_filesx = open(file_pathx, "r").readlines()
+  print(len(read_filesx))
+  read_filesy = open(file_pathy, "r").readlines()
+  print(len(read_filesy))
+  Y = {}
+  for read_file in read_filesy:
+      read_file = read_file.strip()
+      if read_file not in Y:
+          Y[read_file] = 1
+      else:
+          Y[read_file] += 1
+  t = 0
+  for key in Y:
+      for i in range(0, Y[key]):
+          if (i <= int(Y[key]*(1 - split_ratio))):
+              with open(file_path_testy, "a") as file:
+                  file.write(key + "\n")
+              for j in range(0, n_steps):
+                  with open(file_path_testx, "a") as file:
+                      file.write(read_filesx[t])
+                  t += 1
+          else:
+              with open(file_path_trainy, "a") as file:
+                  file.write(key + "\n")
+              for j in range(0, n_steps):
+                  with open(file_path_trainx, "a") as file:
+                      file.write(read_filesx[t])
+                  t += 1
+  return file_path_trainx, file_path_trainy, file_path_testx, file_path_testy
+
+def test(dataset_folder, LABELS):
+  print("Testing")
+  reprocess(dataset_folder, LABELS)
+  file_path_trainx = "dataX.txt"
+  file_path_trainy = "dataY.txt"
+
+  file_path_testx = "dataX.txt"
+  file_path_testy = "dataY.txt"
+  return file_path_trainx, file_path_trainy, file_path_testx, file_path_testy

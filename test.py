@@ -77,4 +77,45 @@
 # #       with open(f'Y.txt', 'a') as file:
 # #         file.writelines(str(i)+"\n")
 # #         file.writelines(str(i)+"\n")
-# #         file.writelines(str(i)+"\n")
+# #         file.writelines(str(i)+"\n")'
+
+
+
+file_pathx = "dataX.txt"
+file_pathy = "dataY.txt"
+file_path_trainx = "dataX_train.txt"
+file_path_trainy = "dataY_train.txt"
+
+file_path_testx = "dataX_test.txt"
+file_path_testy = "dataY_test.txt"
+
+n_steps = 32
+split_ratio = 0.9
+read_filesx = open(file_pathx, "r").readlines()
+print(len(read_filesx))
+read_filesy = open(file_pathy, "r").readlines()
+print(len(read_filesy))
+Y = {}
+for read_file in read_filesy:
+    read_file = read_file.strip()
+    if read_file not in Y:
+        Y[read_file] = 1
+    else:
+        Y[read_file] += 1
+t = 0
+for key in Y:
+    for i in range(0, Y[key]):
+        if (i <= int(Y[key]*(1 - split_ratio))):
+            with open(file_path_testy, "a") as file:
+                file.write(key + "\n")
+            for j in range(0, n_steps):
+                with open(file_path_testx, "a") as file:
+                    file.write(read_filesx[t])
+                t += 1
+        else:
+            with open(file_path_trainy, "a") as file:
+                file.write(key + "\n")
+            for j in range(0, n_steps):
+                with open(file_path_trainx, "a") as file:
+                    file.write(read_filesx[t])
+                t += 1
