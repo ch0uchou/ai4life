@@ -124,6 +124,8 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
 
 def reprocess(folder_path):
   count = 0
+  current_directory = os.getcwd()
+  print(current_directory)
   for i in range (0, len(LABELS)):
     file_path = f"{folder_path}/{LABELS[i]}/"
     print(file_path)
