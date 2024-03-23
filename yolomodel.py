@@ -125,9 +125,8 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
 def reprocess(folder_path):
   count = 0
   for i in range (0, len(LABELS)):
-    print(LABELS[i])
     file_path = f"{folder_path}/{LABELS[i]}/"
-
+    print(file_path)
     video_files = glob.glob(os.path.join(file_path, '*.mp4'))
 
     for video_file in video_files:
