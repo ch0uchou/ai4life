@@ -6,4 +6,4 @@ model = YOLO('yolov8n-pose.pt')  # load an official model
 
 # Predict with the model
 results = model('4470ea421234a1d0aa58cab42ecd1469.jpg')  # predict on an image
-print(f'{results[2]}')  # print results
+print(f'{results[0]}')  # print results
