@@ -17,8 +17,8 @@ from yolomodel import *
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 parser = argparse.ArgumentParser(description='Process some input')
 parser.add_argument('--data', default='NEWAI4LIFE2024-DATA', type=str, help='Dataset path', required=False)   
-parser.add_argument('--train','-b', action='store_true', help='Run a training') 
-parser.add_argument('--test', '-t', action='store_true', help='Run a test') 
+parser.add_argument('--train','-train', action='store_true', help='Run a training') 
+parser.add_argument('--test', '-test', action='store_true', help='Run a test') 
 parser.add_argument('--model', default=None, type=str, help='Model path', required=False)   
 args = parser.parse_args()
 dataset_folder = args.data

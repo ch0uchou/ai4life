@@ -12,9 +12,6 @@ model = YOLO('yolov8n-pose.pt')  # load an official model
 def predict(image_path):
   results = model(image_path, show_labels=False,	show_conf=False, show_boxes=False)  # predict on an image
   keypoints = results[0].keypoints.xyn.cpu().numpy()  # get keypoints (x, y) coordinates
-  if keypoints is None:
-    print('No person detected in the image')
-    return None
   humant_pose = keypoints[0,:,:]  # get the first person's keypoints
   humant_pose = humant_pose.reshape(-1)  # reshape to (N,) format
   str = ''
@@ -22,6 +19,9 @@ def predict(image_path):
     str += f'{humant_pose[i]}'
     if i != len(humant_pose) - 1:
       str += ','
+  if len(humant_pose) < 17*2:
+    print("Can't collect 17 keypoint")
+    return None
   return str + "\n"
 
 def write_data(dataX, dataY, file_path):
@@ -80,6 +80,9 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
 
     with torch.no_grad():
       output= predict(frame)
+      if output == None:
+        print("Can't collect 17 keypoint")
+        return False
       out_X.append(output)
 
     frame_ -= 1
