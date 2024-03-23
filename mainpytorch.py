@@ -39,10 +39,10 @@ LABELS = [
   "barbell biceps curl"
 ]
 
-X_train_path = "X.txt"
+X_train_path = "dataX_train.txt"
 X_test_path = "X_test.txt"
 
-y_train_path = "Y.txt"
+y_train_path = "dataY_train.txt"
 y_test_path = "Y_test.txt"
 
 n_steps = 32 # 32 timesteps per series
@@ -57,7 +57,7 @@ def load_X(X_path):
         [elem for elem in [
             row.split(',') for row in file
         ]],
-        dtype=np.float32
+        dtype=np.float64
     )
     file.close()
     blocks = int(len(X_) / n_steps)
