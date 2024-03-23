@@ -125,9 +125,7 @@ class LSTM(nn.Module):
 
   def forward(self,inputs):
     x = self.bn(inputs)
-    x,_ = self.lstm(x)
-    x,_ = self.lstm1(x)
-    lstm_out,_ = self.lstm2(x)
+    lstm_out,_ = self.lstm(x)
     out = self.fc(lstm_out[:,-1,:])
     return out
 
