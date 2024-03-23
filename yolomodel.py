@@ -7,7 +7,7 @@ import argparse
 
 
 parser = argparse.ArgumentParser(description='Process some input')
-parser.add_argument('--data', default='./NEWAI4LIFE2024-DATA/', type=str, help='Dataset path', required=False)   
+parser.add_argument('--data', default='./NEWAI4LIFE2024-DATA', type=str, help='Dataset path', required=False)   
 args = parser.parse_args()
 dataset_folder = args.data
 
