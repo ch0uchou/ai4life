@@ -152,15 +152,15 @@ n_joints = 17*2
 n_categories = 22
 n_layer = 3
 
-if args.model != None: 
-  rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
-  model_file_path = args.model
-  rnn.load_state_dict(torch.load(model_file_path))
-  rnn.eval()
-  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-  rnn = rnn.to(device)
-else:
-  rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
+# if args.model != None: 
+#   rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
+#   model_file_path = args.model
+#   rnn.load_state_dict(torch.load(model_file_path))
+#   rnn.eval()
+#   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#   rnn = rnn.to(device)
+# else:
+rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
 
 def categoryFromOutput(output):
   top_n, top_i = output.topk(1)
@@ -210,9 +210,7 @@ def timeSince(since):
 start = time.time()
 
 for iter in range(1, n_iters + 1):
-
     category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
-    print(category_tensor.size())
     input_sequence = input_sequence.to(device)
     category_tensor = category_tensor.to(device)
     category_tensor = torch.squeeze(category_tensor)
