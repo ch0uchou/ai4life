@@ -106,17 +106,13 @@ class LSTM(nn.Module):
     self.hidden_dim = hidden_dim
     self.output_dim = output_dim
     self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
-    self.lstm1 = torch.nn.LSTM(2*hidden_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
-    self.lstm2 = torch.nn.LSTM(2*hidden_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
     self.fc = torch.nn.Linear(2*hidden_dim,output_dim)
     self.bn = nn.BatchNorm1d(32)
 
   def forward(self,inputs):
     x = self.bn(inputs)
     x,_ = self.lstm(x)
-    x,_ = self.lstm1(x)
-    lstm_out,_ = self.lstm2(x)
-    out = self.fc(lstm_out[:,-1,:])
+    out = self.fc(x[:,-1,:])
     return out
 
 def randomTrainingExampleBatch(batch_size,flag,num=-1):
