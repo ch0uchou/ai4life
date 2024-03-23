@@ -1,6 +1,40 @@
 from ultralytics import YOLO
 import cv2
 import torch
+import os
+import glob
+import argparse
+
+
+parser = argparse.ArgumentParser(description='Process some input')
+parser.add_argument('--data', default='./NEWAI4LIFE2024-DATA/', type=str, help='Dataset path', required=False)   
+args = parser.parse_args()
+dataset_folder = args.data
+
+LABELS = [
+  "russian twist",
+  "tricep dips",
+  "t bar row",
+  "squat",
+  "shoulder press",
+  "romanian deadlift",
+  "push-up",
+  "plank",
+  "leg extension",
+  "leg raises",
+  "lat pulldown",
+  "incline bench press",
+  "tricep pushdown",
+  "pull up",
+  "lateral raise",
+  "hammer curl",
+  "decline bench press",
+  "hip thrust",
+  "bench press",
+  "chest fly machine",
+  "deadlift",
+  "barbell biceps curl"
+]
 
 # Load a model
 model = YOLO('yolov8n-pose.pt')  # load an official model
@@ -85,4 +119,21 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
   cap.release()
   return write_data(out_X, label, file_path)
 
-get_video_frame("tricep pushdown_49.mp4",1,"data")
+# Đường dẫn đến video
+# get_video_frame("tricep pushdown_49.mp4",1,"data")
+
+def reprocess(folder_path):
+  count = 0
+  for i in range (0, len(LABELS)):
+    print(LABELS[i])
+    file_path = f"{folder_path}/{LABELS[i]}/"
+
+    video_files = glob.glob(os.path.join(file_path, '*.mp4'))
+
+    for video_file in video_files:
+      print(video_file, i)
+      if get_video_frame(video_file, i + 1, "data") == True:
+        count +=1
+  return count
+
+reprocess(dataset_folder)
