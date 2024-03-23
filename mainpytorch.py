@@ -39,11 +39,11 @@ LABELS = [
   "barbell biceps curl"
 ]
 
-X_train_path = "dataX_train.txt"
-X_test_path = "dataX_test.txt"
+X_train_path = "X.txt"
+X_test_path = "X_test.txt"
 
-y_train_path = "dataY_train.txt"
-y_test_path = "dataY_test.txt"
+y_train_path = "Y.txt"
+y_test_path = "Y_test.txt"
 
 n_steps = 32 # 32 timesteps per series
 n_categories = len(LABELS)
@@ -106,13 +106,17 @@ class LSTM(nn.Module):
     self.hidden_dim = hidden_dim
     self.output_dim = output_dim
     self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
+    self.lstm1 = torch.nn.LSTM(2*hidden_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
+    self.lstm2 = torch.nn.LSTM(2*hidden_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
     self.fc = torch.nn.Linear(2*hidden_dim,output_dim)
     self.bn = nn.BatchNorm1d(32)
 
   def forward(self,inputs):
     x = self.bn(inputs)
     x,_ = self.lstm(x)
-    out = self.fc(x[:,-1,:])
+    x,_ = self.lstm1(x)
+    lstm_out,_ = self.lstm2(x)
+    out = self.fc(lstm_out[:,-1,:])
     return out
 
 def randomTrainingExampleBatch(batch_size,flag,num=-1):
