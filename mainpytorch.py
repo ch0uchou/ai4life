@@ -11,17 +11,8 @@ import time
 import math
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-import argparse
-from yolomodel import *
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-parser = argparse.ArgumentParser(description='Process some input')
-parser.add_argument('--data', default='data', type=str, help='Dataset path', required=False)   
-parser.add_argument('--train','-train', action='store_true', help='Run a training') 
-parser.add_argument('--test', '-test', action='store_true', help='Run a test') 
-parser.add_argument('--model', default=None, type=str, help='Model path', required=False)   
-args = parser.parse_args()
-dataset_folder = args.data
 
 LABELS = [
   "russian twist",
@@ -48,16 +39,11 @@ LABELS = [
   "barbell biceps curl"
 ]
 
-if args.train:
-  X_train_path, y_train_path, X_test_path, y_test_path = train(dataset_folder, LABELS)
-elif args.test:
-  X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS)
-else:
-  X_train_path = "dataX_train.txt"
-  y_train_path = "dataY_train.txt"
-  X_test_path = "dataX_test.txt"
-  y_test_path = "dataY_test.txt"
-   
+X_train_path = "dataX_train.txt"
+X_test_path = "dataX_test.txt"
+
+y_train_path = "dataY_train.txt"
+y_test_path = "dataY_test.txt"
 
 n_steps = 32 # 32 timesteps per series
 n_categories = len(LABELS)
@@ -92,7 +78,7 @@ def load_y(y_path):
     file.close()
 
     # for 0-based indexing
-    return y_ +1
+    return y_
 
 X_train = load_X(X_train_path)
 X_test = load_X(X_test_path)
@@ -120,12 +106,16 @@ class LSTM(nn.Module):
     self.hidden_dim = hidden_dim
     self.output_dim = output_dim
     self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
+    self.lstm1 = torch.nn.LSTM(2*hidden_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
+    self.lstm2 = torch.nn.LSTM(2*hidden_dim,hidden_dim,layer_num,batch_first=True,bidirectional=True)
     self.fc = torch.nn.Linear(2*hidden_dim,output_dim)
     self.bn = nn.BatchNorm1d(32)
 
   def forward(self,inputs):
     x = self.bn(inputs)
-    lstm_out,_ = self.lstm(x)
+    x,_ = self.lstm(x)
+    x,_ = self.lstm1(x)
+    lstm_out,_ = self.lstm2(x)
     out = self.fc(lstm_out[:,-1,:])
     return out
 
@@ -151,15 +141,6 @@ n_hidden = 128
 n_joints = 17*2
 n_categories = 22
 n_layer = 3
-
-# if args.model != None: 
-#   rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
-#   model_file_path = args.model
-#   rnn.load_state_dict(torch.load(model_file_path))
-#   rnn.eval()
-#   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#   rnn = rnn.to(device)
-# else:
 rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
 
 def categoryFromOutput(output):
@@ -210,11 +191,12 @@ def timeSince(since):
 start = time.time()
 
 for iter in range(1, n_iters + 1):
+
     category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
     input_sequence = input_sequence.to(device)
     category_tensor = category_tensor.to(device)
     category_tensor = torch.squeeze(category_tensor)
-    print(category_tensor.size())
+
     optimizer.zero_grad()
     output = rnn(input_sequence)
     loss = criterion(output, category_tensor)
@@ -260,9 +242,9 @@ def test(flag):
 
 print(test('test'))
 print(test('train'))
-print(f'loss: {all_losses}')
-# plt.figure()
-# plt.plot(all_losses)
+
+plt.figure()
+plt.plot(all_losses)
 
 # Keep track of correct guesses in a confusion matrix
 confusion = torch.zeros(n_categories, n_categories)
@@ -285,23 +267,23 @@ for i in range(n_confusion):
 # Normalize by dividing every row by its sum
 for i in range(n_categories):
     confusion[i] = confusion[i] / confusion[i].sum()
-    # Print confusion matrix
-print(confusion.numpy())
-# fig = plt.figure()
-# ax = fig.add_subplot(111)
-# cax = ax.matshow(confusion.numpy())
-# fig.colorbar(cax)
 
-# # Set up axes
-# ax.set_xticklabels([''] + LABELS, rotation=90)
-# ax.set_yticklabels([''] + LABELS)
+# Set up plot
+fig = plt.figure()
+ax = fig.add_subplot(111)
+cax = ax.matshow(confusion.numpy())
+fig.colorbar(cax)
 
-# # Force label at every tick
-# ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
-# ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+# Set up axes
+ax.set_xticklabels([''] + LABELS, rotation=90)
+ax.set_yticklabels([''] + LABELS)
 
-# # sphinx_gallery_thumbnail_number = 2
-# plt.show()
+# Force label at every tick
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+
+# sphinx_gallery_thumbnail_number = 2
+plt.show()
 
 for i in range(n_categories):
     true_positives = confusion[i, i]
