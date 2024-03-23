@@ -19,7 +19,7 @@ def predict(image_path):
     str += f'{humant_pose[i]}'
     if i != len(humant_pose) - 1:
       str += ','
-  return str
+  return str + "\n"
 
 def write_data(dataX, dataY, file_path):
   if dataY != "":
