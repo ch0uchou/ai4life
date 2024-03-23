@@ -57,7 +57,7 @@ def load_X(X_path):
         [elem for elem in [
             row.split(',') for row in file
         ]],
-        dtype=np.float64
+        dtype=np.float32
     )
     file.close()
     blocks = int(len(X_) / n_steps)
