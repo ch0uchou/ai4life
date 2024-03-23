@@ -185,62 +185,61 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
     category_tensor = y[ran_num:ran_num+batch_size,:]
     return category_tensor.long(), pose_sequence_tensor
 
-if args.model == None: 
-  criterion = nn.CrossEntropyLoss()
-  learning_rate = 0.0005
-  optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
-  #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
+criterion = nn.CrossEntropyLoss()
+learning_rate = 0.0005
+optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
+#scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-  n_iters = 100000
-  #n_iters = 60000
-  print_every = 1000
-  plot_every = 1000
-  batch_size = 128
+n_iters = 100000
+#n_iters = 60000
+print_every = 1000
+plot_every = 1000
+batch_size = 128
 
-  # Keep track of losses for plotting
-  current_loss = 0
-  all_losses = []
+# Keep track of losses for plotting
+current_loss = 0
+all_losses = []
 
-  def timeSince(since):
-      now = time.time()
-      s = now - since
-      m = math.floor(s / 60)
-      s -= m * 60
-      return '%dm %ds' % (m, s)
+def timeSince(since):
+    now = time.time()
+    s = now - since
+    m = math.floor(s / 60)
+    s -= m * 60
+    return '%dm %ds' % (m, s)
 
-  start = time.time()
+start = time.time()
 
-  for iter in range(1, n_iters + 1):
+for iter in range(1, n_iters + 1):
 
-      category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
-      print(category_tensor.size())
-      input_sequence = input_sequence.to(device)
-      category_tensor = category_tensor.to(device)
-      category_tensor = torch.squeeze(category_tensor)
+    category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
+    print(category_tensor.size())
+    input_sequence = input_sequence.to(device)
+    category_tensor = category_tensor.to(device)
+    category_tensor = torch.squeeze(category_tensor)
 
-      optimizer.zero_grad()
-      output = rnn(input_sequence)
-      loss = criterion(output, category_tensor)
-      loss.backward()
-      optimizer.step()
-      #scheduler.step()
+    optimizer.zero_grad()
+    output = rnn(input_sequence)
+    loss = criterion(output, category_tensor)
+    loss.backward()
+    optimizer.step()
+    #scheduler.step()
 
-      current_loss += loss.item()
+    current_loss += loss.item()
 
-      category = LABELS[int(category_tensor[0])]
+    category = LABELS[int(category_tensor[0])]
 
-      # Print iter number, loss, name and guess
-      if iter % print_every == 0:
-          guess, guess_i = categoryFromOutput(output)
-          correct = '✓' if guess == category else '✗ (%s)' % category
-          print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
+    # Print iter number, loss, name and guess
+    if iter % print_every == 0:
+        guess, guess_i = categoryFromOutput(output)
+        correct = '✓' if guess == category else '✗ (%s)' % category
+        print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
 
-      # Add current loss avg to list of losses
-      if iter % plot_every == 0:
-          all_losses.append(current_loss / plot_every)
-          current_loss = 0
+    # Add current loss avg to list of losses
+    if iter % plot_every == 0:
+        all_losses.append(current_loss / plot_every)
+        current_loss = 0
 
-  torch.save(rnn.state_dict(),'bidirection_lstm_2.pkl')
+torch.save(rnn.state_dict(),'bidirection_lstm_2.pkl')
 
 def test(flag):
     if flag == 'train':
