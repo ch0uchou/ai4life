@@ -7,7 +7,7 @@ import argparse
 
 
 parser = argparse.ArgumentParser(description='Process some input')
-parser.add_argument('--data', default='./NEWAI4LIFE2024-DATA', type=str, help='Dataset path', required=False)   
+parser.add_argument('--data', default='NEWAI4LIFE2024-DATA', type=str, help='Dataset path', required=False)   
 args = parser.parse_args()
 dataset_folder = args.data
 
@@ -125,7 +125,9 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
 def reprocess(folder_path):
   count = 0
   current_directory = os.getcwd()
+  parent_directory = os.path.dirname(current_directory)
   print(current_directory)
+  print(parent_directory+f"{folder_path}/{LABELS[i]}/")
   for i in range (0, len(LABELS)):
     file_path = f"{folder_path}/{LABELS[i]}/"
     print(file_path)
