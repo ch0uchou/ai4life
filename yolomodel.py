@@ -127,7 +127,7 @@ def reprocess(folder_path):
   current_directory = os.getcwd()
   parent_directory = os.path.dirname(current_directory)
   print(current_directory)
-  print(parent_directory+f"{folder_path}/{LABELS[i]}/")
+  print(parent_directory+f"{folder_path}/{LABELS[1]}/")
   for i in range (0, len(LABELS)):
     file_path = f"{folder_path}/{LABELS[i]}/"
     print(file_path)
