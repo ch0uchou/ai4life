@@ -142,6 +142,8 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
     ran_num = random.randint(0,data_size-batch_size)
   else:
     ran_num = num
+  print('ran_num:',ran_num)
+  print('batch_size:',ran_num+batch_size)
   pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
   pose_sequence_tensor = pose_sequence_tensor
   category_tensor = y[ran_num:ran_num+batch_size,:]
@@ -167,26 +169,6 @@ def categoryFromOutput(output):
   category_i = top_i[0].item()
   return LABELS[category_i], category_i
 
-def randomTrainingExampleBatch(batch_size,flag,num=-1):
-    if flag == 'train':
-        X = tensor_X_train
-        y = tensor_y_train
-        data_size = n_data_size_train
-    elif flag == 'test':
-        X = tensor_X_test
-        y = tensor_y_test
-        data_size = n_data_size_test
-    if num == -1:
-      ran_num = random.randint(0,data_size-batch_size)
-    else:
-      ran_num = num
-    pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
-    print(ran_num)
-    print(ran_num+batch_size)
-    print(pose_sequence_tensor.size())
-    pose_sequence_tensor = pose_sequence_tensor
-    category_tensor = y[ran_num:ran_num+batch_size,:]
-    return category_tensor.long(), pose_sequence_tensor
 
 if args.model == None: 
   criterion = nn.CrossEntropyLoss()
