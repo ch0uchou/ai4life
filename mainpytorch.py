@@ -92,7 +92,7 @@ def load_y(y_path):
     file.close()
 
     # for 0-based indexing
-    return y_ + 1
+    return y_
 
 X_train = load_X(X_train_path)
 X_test = load_X(X_test_path)
@@ -145,7 +145,7 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
   pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
   pose_sequence_tensor = pose_sequence_tensor
   category_tensor = y[ran_num:ran_num+batch_size,:]
-  return category_tensor.long(),pose_sequence_tensor
+  return category_tensor.long() - 1,pose_sequence_tensor
 
 n_hidden = 128
 n_joints = 17*2
@@ -213,7 +213,9 @@ if args.model == None:
   for iter in range(1, n_iters + 1):
 
       category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
-      print(category_tensor.size())
+      print(category_tensor)
+      print(input_sequence)
+      break
       input_sequence = input_sequence.to(device)
       category_tensor = category_tensor.to(device)
       category_tensor = torch.squeeze(category_tensor)
