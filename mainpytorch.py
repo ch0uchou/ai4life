@@ -54,10 +54,10 @@ if args.train:
 elif args.test:
   X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS)
 else:
-  X_train_path = "data1X_train.txt"
-  y_train_path = "data1Y_train.txt"
-  X_test_path = "data1X_test.txt"
-  y_test_path = "data1Y_test.txt"
+  X_train_path = "dataX_train.txt"
+  y_train_path = "dataY_train.txt"
+  X_test_path = "dataX_test.txt"
+  y_test_path = "dataY_test.txt"
 
 n_steps = 32 # 32 timesteps per series
 n_categories = len(LABELS)
@@ -204,7 +204,7 @@ if args.model == None:
   optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
   #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-  n_iters = 100000
+  n_iters = 1000000
   #n_iters = 60000
   print_every = 1000
   plot_every = 1000
@@ -250,7 +250,7 @@ if args.model == None:
       if iter % plot_every == 0:
           all_losses.append(current_loss / plot_every)
           current_loss = 0
-  torch.save(rnn.state_dict(),'lstm_cnn_xyn.pkl')
+  torch.save(rnn.state_dict(),'final.pkl')
 
 def test(flag):
     if flag == 'train':
