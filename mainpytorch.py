@@ -213,13 +213,13 @@ if args.model == None:
   for iter in range(1, n_iters + 1):
 
       category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
+      print(category_tensor)
       input_sequence = input_sequence.to(device)
       category_tensor = category_tensor.to(device)
       category_tensor = torch.squeeze(category_tensor)
 
       optimizer.zero_grad()
       output = rnn(input_sequence)
-      print(output)
       loss = criterion(output, category_tensor)
       loss.backward()
       optimizer.step()
