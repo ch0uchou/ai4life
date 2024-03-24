@@ -100,7 +100,7 @@ X_test = load_X(X_test_path)
 y_train = load_y(y_train_path)
 y_test = load_y(y_test_path)
 
-# X_train, y_train = shuffle(X_train, y_train)
+X_train, y_train = shuffle(X_train, y_train)
 
 tensor_X_test = torch.from_numpy(X_test)
 print('test_data_size:',tensor_X_test.size())
