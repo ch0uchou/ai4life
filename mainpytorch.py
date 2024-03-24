@@ -139,7 +139,8 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
     y = tensor_y_test
     data_size = n_data_size_test
   if num == -1:
-    ran_num = random.randint(0,data_size-batch_size)
+    # ran_num = random.randint(0,data_size-batch_size)
+    ran_num = 0
   else:
     ran_num = num
   print('ran_num:',ran_num)
