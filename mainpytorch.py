@@ -53,10 +53,10 @@ if args.train:
 elif args.test:
   X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS)
 else:
-  X_train_path = "X.txt"
-  y_train_path = "Y.txt"
-  X_test_path = "X_test.txt"
-  y_test_path = "Y_test.txt"
+  X_train_path = "dataX_train.txt"
+  y_train_path = "dataY_train.txt"
+  X_test_path = "dataX_test.txt"
+  y_test_path = "dataY_test.txt"
    
 
 n_steps = 32 # 32 timesteps per series
@@ -92,7 +92,7 @@ def load_y(y_path):
     file.close()
 
     # for 0-based indexing
-    return y_
+    return y_ -1
 
 X_train = load_X(X_train_path)
 X_test = load_X(X_test_path)
@@ -139,18 +139,13 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
     y = tensor_y_test
     data_size = n_data_size_test
   if num == -1:
-    # ran_num = random.randint(0,data_size-batch_size)
-    ran_num = 0
+    ran_num = random.randint(0,data_size-batch_size)
   else:
     ran_num = num
-  print('ran_num:',ran_num)
-  print('batch_size:',ran_num+batch_size)
   pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
   pose_sequence_tensor = pose_sequence_tensor
   category_tensor = y[ran_num:ran_num+batch_size,:]
-  print('category_tensor:',category_tensor.long() )
-  print('pose_sequence_tensor:',pose_sequence_tensor)
-  return category_tensor.long(),pose_sequence_tensor
+  return category_tensor.long() - 1,pose_sequence_tensor
 
 n_hidden = 128
 n_joints = 17*2
@@ -201,7 +196,6 @@ if args.model == None:
   for iter in range(1, n_iters + 1):
 
       category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
-      break
       input_sequence = input_sequence.to(device)
       category_tensor = category_tensor.to(device)
       category_tensor = torch.squeeze(category_tensor)
@@ -254,57 +248,57 @@ def test(flag):
 # plt.figure()
 # plt.plot(all_losses)
 
-# # Keep track of correct guesses in a confusion matrix
-# confusion = torch.zeros(n_categories, n_categories)
-# n_confusion = n_data_size_test
-# precision = np.zeros(n_categories)
-# recall = np.zeros(n_categories)
-# f1 = np.zeros(n_categories)
+# Keep track of correct guesses in a confusion matrix
+confusion = torch.zeros(n_categories, n_categories)
+n_confusion = n_data_size_test
+precision = np.zeros(n_categories)
+recall = np.zeros(n_categories)
+f1 = np.zeros(n_categories)
 
-# # Go through a bunch of examples and record which are correctly guessed
-# for i in range(n_confusion):
-#     category_tensor, inputs = randomTrainingExampleBatch(1,'test',i)
-#     # print(f"input: {inputs}")
-#     category = LABELS[int(category_tensor[0])-1]
-#     inputs = inputs.to(device)
-#     output = rnn(inputs)
-#     guess, guess_i = categoryFromOutput(output)
-#     category_i = LABELS.index(category)
-#     confusion[category_i][guess_i] += 1
+# Go through a bunch of examples and record which are correctly guessed
+for i in range(n_confusion):
+    category_tensor, inputs = randomTrainingExampleBatch(1,'test',i)
+    # print(f"input: {inputs}")
+    category = LABELS[int(category_tensor[0])-1]
+    inputs = inputs.to(device)
+    output = rnn(inputs)
+    guess, guess_i = categoryFromOutput(output)
+    category_i = LABELS.index(category)
+    confusion[category_i][guess_i] += 1
 
-# # Normalize by dividing every row by its sum
-# for i in range(n_categories):
-#     confusion[i] = confusion[i] / confusion[i].sum()
-#     # Print confusion matrix
-# # print(confusion.numpy())
-# # fig = plt.figure()
-# # ax = fig.add_subplot(111)
-# # cax = ax.matshow(confusion.numpy())
-# # fig.colorbar(cax)
+# Normalize by dividing every row by its sum
+for i in range(n_categories):
+    confusion[i] = confusion[i] / confusion[i].sum()
+    # Print confusion matrix
+# print(confusion.numpy())
+# fig = plt.figure()
+# ax = fig.add_subplot(111)
+# cax = ax.matshow(confusion.numpy())
+# fig.colorbar(cax)
 
-# # # Set up axes
-# # ax.set_xticklabels([''] + LABELS, rotation=90)
-# # ax.set_yticklabels([''] + LABELS)
+# # Set up axes
+# ax.set_xticklabels([''] + LABELS, rotation=90)
+# ax.set_yticklabels([''] + LABELS)
 
-# # # Force label at every tick
-# # ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
-# # ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+# # Force label at every tick
+# ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+# ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
-# # # sphinx_gallery_thumbnail_number = 2
-# # plt.show()
+# # sphinx_gallery_thumbnail_number = 2
+# plt.show()
 
-# for i in range(n_categories):
-#     true_positives = confusion[i, i]
-#     false_positives = confusion[:, i].sum() - true_positives
-#     false_negatives = confusion[i, :].sum() - true_positives
+for i in range(n_categories):
+    true_positives = confusion[i, i]
+    false_positives = confusion[:, i].sum() - true_positives
+    false_negatives = confusion[i, :].sum() - true_positives
 
-#     # Calculate precision, recall, and F1 for the current category
-#     precision[i] = true_positives / (true_positives + false_positives) if (true_positives + false_positives) != 0 else 0
-#     recall[i] = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) != 0 else 0
+    # Calculate precision, recall, and F1 for the current category
+    precision[i] = true_positives / (true_positives + false_positives) if (true_positives + false_positives) != 0 else 0
+    recall[i] = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) != 0 else 0
 
-#     # Calculate F1 score
-#     f1[i] = 2 * (precision[i] * recall[i]) / (precision[i] + recall[i]) if (precision[i] + recall[i]) != 0 else 0
+    # Calculate F1 score
+    f1[i] = 2 * (precision[i] * recall[i]) / (precision[i] + recall[i]) if (precision[i] + recall[i]) != 0 else 0
 
-# # Print or use the average F1 score
-# average_f1 = np.mean(f1)
-# print(f"Average F1 Score: {average_f1}")
+# Print or use the average F1 score
+average_f1 = np.mean(f1)
+print(f"Average F1 Score: {average_f1}")
