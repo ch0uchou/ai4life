@@ -121,15 +121,43 @@ class LSTM(nn.Module):
     super(LSTM,self).__init__()
     self.hidden_dim = hidden_dim
     self.output_dim = output_dim
-    self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True)
-    self.fc = torch.nn.Linear(hidden_dim,output_dim)
-    self.bn = nn.BatchNorm1d(32)
+    # self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True)
+    # self.fc = torch.nn.Linear(hidden_dim,output_dim)
+    # self.bn = nn.BatchNorm1d(32)
+
+    self.conv1d = nn.Conv1d(in_channels=input_dim, out_channels=64, kernel_size=3)
+    self.relu = nn.ReLU()
+    self.lstm1 = nn.LSTM(input_size=64, hidden_size=hidden_dim, num_layers=layer_num, batch_first=True)
+    self.lstm2 = nn.LSTM(input_size=hidden_dim, hidden_size=hidden_dim, num_layers=layer_num, batch_first=True)
+    self.fc = nn.Linear(hidden_dim, n_categories)
+
 
   def forward(self,inputs):
-    x = self.bn(inputs)
-    lstm_out,_ = self.lstm(x)
-    out = self.fc(lstm_out[:,-1,:])
-    return out
+    # x = self.bn(inputs)
+    # lstm_out,_ = self.lstm(x)
+    # out = self.fc(lstm_out[:,-1,:])
+    # return out
+    x = inputs.permute(0, 2, 1)  # Reshape to (batch_size, 34, 32) for 1D conv
+    x = self.conv1d(x)
+    x = self.relu(x)
+    
+    # Reshape back to (batch_size, 32, 64) for LSTM
+    x = x.permute(0, 2, 1)
+    # LSTM expects input of shape (batch_size, seq_len, input_size)
+    
+    # First LSTM layer
+    lstm_out1, _ = self.lstm1(x)
+    
+    # Second LSTM layer
+    lstm_out2, _ = self.lstm2(lstm_out1)
+    
+    # Get output from the last time step
+    lstm_out = lstm_out2[:, -1, :]
+    
+    # Fully connected layer
+    output = self.fc(lstm_out)
+    return output
+
 
 def randomTrainingExampleBatch(batch_size,flag,num=-1):
   if flag == 'train':
@@ -176,7 +204,7 @@ if args.model == None:
   optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
   #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-  n_iters = 1000000
+  n_iters = 100000
   #n_iters = 60000
   print_every = 1000
   plot_every = 1000
@@ -222,7 +250,7 @@ if args.model == None:
       if iter % plot_every == 0:
           all_losses.append(current_loss / plot_every)
           current_loss = 0
-  torch.save(rnn.state_dict(),'lstm_randomdata.pkl')
+  torch.save(rnn.state_dict(),'lstm_cnn.pkl')
 
 def test(flag):
     if flag == 'train':
