@@ -145,7 +145,7 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
   pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
   pose_sequence_tensor = pose_sequence_tensor
   category_tensor = y[ran_num:ran_num+batch_size,:]
-  return category_tensor.long() - 1,pose_sequence_tensor
+  return category_tensor.long(),pose_sequence_tensor
 
 n_hidden = 128
 n_joints = 17*2
