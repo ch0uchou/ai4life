@@ -269,7 +269,12 @@ for i in range(n_confusion):
 # Normalize by dividing every row by its sum
 for i in range(n_categories):
     confusion[i] = confusion[i] / confusion[i].sum()
-    # Print confusion matrix
+
+# Print confusion matrix
+
+with open('confusion.npy', 'wb') as f:
+  np.save(f, confusion.numpy())
+
 # print(confusion.numpy())
 # fig = plt.figure()
 # ax = fig.add_subplot(111)
