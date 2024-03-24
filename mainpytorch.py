@@ -223,7 +223,8 @@ if args.model == None:
       loss.backward()
       optimizer.step()
       #scheduler.step()
-
+      print(current_loss)
+      print(loss.item())
       current_loss += loss.item()
 
       category = LABELS[int(category_tensor[0])]
