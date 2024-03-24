@@ -54,10 +54,10 @@ if args.train:
 elif args.test:
   X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS)
 else:
-  X_train_path = "X.txt"
-  y_train_path = "Y.txt"
-  X_test_path = "data1X_test.txt"
-  y_test_path = "data1Y_test.txt"
+  X_train_path = "dataX_train.txt"
+  y_train_path = "dataY_train.txt"
+  X_test_path = "dataX_test.txt"
+  y_test_path = "dataY_test.txt"
 
 n_steps = 32 # 32 timesteps per series
 n_categories = len(LABELS)
