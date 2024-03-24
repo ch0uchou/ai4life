@@ -100,7 +100,7 @@ X_test = load_X(X_test_path)
 y_train = load_y(y_train_path)
 y_test = load_y(y_test_path)
 
-X_train, y_train = shuffle(X_train, y_train)
+# X_train, y_train = shuffle(X_train, y_train)
 
 tensor_X_test = torch.from_numpy(X_test)
 print('test_data_size:',tensor_X_test.size())
@@ -250,7 +250,7 @@ if args.model == None:
       if iter % plot_every == 0:
           all_losses.append(current_loss / plot_every)
           current_loss = 0
-  torch.save(rnn.state_dict(),'lstm_cnn.pkl')
+  torch.save(rnn.state_dict(),'lstm_cnn_xyn.pkl')
 
 def test(flag):
     if flag == 'train':
