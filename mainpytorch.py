@@ -219,12 +219,11 @@ if args.model == None:
 
       optimizer.zero_grad()
       output = rnn(input_sequence)
+      print(output)
       loss = criterion(output, category_tensor)
       loss.backward()
       optimizer.step()
       #scheduler.step()
-      print(current_loss)
-      print(loss.item())
       current_loss += loss.item()
 
       category = LABELS[int(category_tensor[0])]
