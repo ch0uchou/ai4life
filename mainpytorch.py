@@ -181,6 +181,9 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
     else:
       ran_num = num
     pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
+    print(ran_num)
+    print(ran_num+batch_size)
+    print(pose_sequence_tensor.size())
     pose_sequence_tensor = pose_sequence_tensor
     category_tensor = y[ran_num:ran_num+batch_size,:]
     return category_tensor.long(), pose_sequence_tensor
@@ -213,8 +216,6 @@ if args.model == None:
   for iter in range(1, n_iters + 1):
 
       category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
-      print(category_tensor)
-      print(input_sequence)
       break
       input_sequence = input_sequence.to(device)
       category_tensor = category_tensor.to(device)
