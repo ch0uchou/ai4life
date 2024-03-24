@@ -242,8 +242,8 @@ def test(flag):
                 right+=1
     print(flag,'accuracy',right/n)
 
-# print(test('test'))
-# print(test('train'))
+print(test('test'))
+print(test('train'))
 # print(f'loss: {all_losses}')
 # plt.figure()
 # plt.plot(all_losses)
