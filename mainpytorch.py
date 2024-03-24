@@ -53,10 +53,10 @@ if args.train:
 elif args.test:
   X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS)
 else:
-  X_train_path = "dataX_train.txt"
-  y_train_path = "dataY_train.txt"
-  X_test_path = "dataX_test.txt"
-  y_test_path = "dataY_test.txt"
+  X_train_path = "X.txt"
+  y_train_path = "Y.txt"
+  X_test_path = "X_test.txt"
+  y_test_path = "Y_test.txt"
    
 
 n_steps = 32 # 32 timesteps per series
@@ -147,7 +147,9 @@ def randomTrainingExampleBatch(batch_size,flag,num=-1):
   pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
   pose_sequence_tensor = pose_sequence_tensor
   category_tensor = y[ran_num:ran_num+batch_size,:]
-  return category_tensor.long() - 1,pose_sequence_tensor
+  print('category_tensor:',category_tensor.long() )
+  print('pose_sequence_tensor:',pose_sequence_tensor)
+  return category_tensor.long(),pose_sequence_tensor
 
 n_hidden = 128
 n_joints = 17*2
