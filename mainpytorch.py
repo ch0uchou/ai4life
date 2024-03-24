@@ -242,7 +242,7 @@ if args.model == None:
           all_losses.append(current_loss / plot_every)
           current_loss = 0
 
-  torch.save(rnn.state_dict(),'bidirection_lstm_2.pkl')
+  # torch.save(rnn.state_dict(),'bidirection_lstm_2.pkl')
 
 def test(flag):
     if flag == 'train':
@@ -263,9 +263,9 @@ def test(flag):
                 right+=1
     print(flag,'accuracy',right/n)
 
-print(test('test'))
-print(test('train'))
-print(f'loss: {all_losses}')
+# print(test('test'))
+# print(test('train'))
+# print(f'loss: {all_losses}')
 # plt.figure()
 # plt.plot(all_losses)
 
@@ -291,7 +291,7 @@ for i in range(n_confusion):
 for i in range(n_categories):
     confusion[i] = confusion[i] / confusion[i].sum()
     # Print confusion matrix
-print(confusion.numpy())
+# print(confusion.numpy())
 # fig = plt.figure()
 # ax = fig.add_subplot(111)
 # cax = ax.matshow(confusion.numpy())
