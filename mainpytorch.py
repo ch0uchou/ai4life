@@ -204,7 +204,7 @@ if args.model == None:
   optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
   #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-  n_iters = 1000000
+  n_iters = 100000
   #n_iters = 60000
   print_every = 1000
   plot_every = 1000
@@ -262,7 +262,7 @@ def test(flag):
         right = 0
         for i in range(n):
             category_tensor, inputs = randomTrainingExampleBatch(1,flag,i)
-            category = LABELS[int(category_tensor[0])-1]
+            category = LABELS[int(category_tensor[0])]
             inputs = inputs.to(device)
             output = rnn(inputs)
             guess, guess_i = categoryFromOutput(output)
@@ -288,7 +288,7 @@ f1 = np.zeros(n_categories)
 for i in range(n_confusion):
     category_tensor, inputs = randomTrainingExampleBatch(1,'test',i)
     # print(f"input: {inputs}")
-    category = LABELS[int(category_tensor[0])-1]
+    category = LABELS[int(category_tensor[0])]
     inputs = inputs.to(device)
     output = rnn(inputs)
     guess, guess_i = categoryFromOutput(output)
