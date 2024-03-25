@@ -94,7 +94,7 @@ def get_video_frame(video_path, label, file_path, n_steps = 32):
 # Đường dẫn đến video
 # get_video_frame("tricep pushdown_49.mp4",1,"data")
 
-def reprocess(folder_path, LABELS):
+def reprocess(folder_path, LABELS, current_time):
   count = 0
   current_directory = os.getcwd()
   parent_directory = os.path.dirname(current_directory)
@@ -105,20 +105,20 @@ def reprocess(folder_path, LABELS):
 
     for video_file in video_files:
       print(video_file, i)
-      if get_video_frame(video_file, i + 1, "data") == True:
+      if get_video_frame(video_file, i + 1, f"{current_time}data") == True:
         count +=1
   return count
 
-def train(dataset_folder, LABELS):
+def train(dataset_folder, LABELS, current_time):
   print("Training")
-  reprocess(dataset_folder, LABELS)
-  file_pathx = "dataX.txt"
-  file_pathy = "dataY.txt"
-  file_path_trainx = "dataX_train.txt"
-  file_path_trainy = "dataY_train.txt"
+  reprocess(dataset_folder, LABELS, current_time)
+  file_pathx = f"{current_time}dataX.txt"
+  file_pathy = f"{current_time}dataY.txt"
+  file_path_trainx = f"{current_time}dataX_train.txt"
+  file_path_trainy = f"{current_time}dataY_train.txt"
 
-  file_path_testx = "dataX_test.txt"
-  file_path_testy = "dataY_test.txt"
+  file_path_testx = f"{current_time}dataX_test.txt"
+  file_path_testy = f"{current_time}dataY_test.txt"
 
   n_steps = 32
   split_ratio = 0.9
@@ -152,12 +152,12 @@ def train(dataset_folder, LABELS):
                   t += 1
   return file_path_trainx, file_path_trainy, file_path_testx, file_path_testy
 
-def test(dataset_folder, LABELS):
+def test(dataset_folder, LABELS, current_time):
   print("Testing")
   reprocess(dataset_folder, LABELS)
-  file_path_trainx = "dataX.txt"
-  file_path_trainy = "dataY.txt"
+  file_path_trainx = f"{current_time}dataX.txt"
+  file_path_trainy = f"{current_time}dataY.txt"
 
-  file_path_testx = "dataX.txt"
-  file_path_testy = "dataY.txt"
+  file_path_testx = f"{current_time}dataX.txt"
+  file_path_testy = f"{current_time}dataY.txt"
   return file_path_trainx, file_path_trainy, file_path_testx, file_path_testy

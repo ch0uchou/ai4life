@@ -1,6 +1,5 @@
 import numpy as np
 import torch.nn as nn
-import torch
 import random
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -13,8 +12,9 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import argparse
-from sklearn.utils import shuffle
+from utils import load_data
 from yolomodel import *
+from datetime import datetime
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 parser = argparse.ArgumentParser(description='Process some input')
@@ -50,11 +50,12 @@ LABELS = [
   "deadlift",
   "barbell biceps curl"
 ]
+current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
 
 if args.train:
-  X_train_path, y_train_path, X_test_path, y_test_path = train(dataset_folder, LABELS)
+  X_train_path, y_train_path, X_test_path, y_test_path = train(dataset_folder, LABELS, current_time)
 elif args.test:
-  X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS)
+  X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS, current_time)
 else:
   X_train_path = "dataX_train.txt"
   y_train_path = "dataY_train.txt"
@@ -67,57 +68,7 @@ label_number = 6
 split_ratio = 0.8
 # Load the networks inputs
 
-def load_X(X_path):
-    file = open(X_path, 'r')
-    X_ = np.array(
-        [elem for elem in [
-            row.split(',') for row in file
-        ]],
-        dtype=np.float32
-    )
-    file.close()
-    blocks = int(len(X_) / n_steps)
-
-    X_ = np.array(np.split(X_,blocks))
-
-    return X_
-
-# Load the networks outputs
-def load_y(y_path):
-    file = open(y_path, 'r')
-    y_ = np.array(
-        [elem for elem in [
-            row.replace('  ', ' ').strip().split(' ') for row in file
-        ]],
-        dtype=np.int32
-    )
-    file.close()
-
-    # for 0-based indexing
-    return y_ -1
-
-X_train = load_X(X_train_path)
-X_test = load_X(X_test_path)
-
-y_train = load_y(y_train_path)
-y_test = load_y(y_test_path)
-
-# X_train, y_train = shuffle(X_train, y_train)
-
-tensor_X_test = torch.from_numpy(X_test)
-print('test_data_size:',tensor_X_test.size())
-tensor_y_test = torch.from_numpy(y_test)
-print('test_label_size:',tensor_y_test.size())
-n_data_size_test = tensor_X_test.size()[0]
-print('n_data_size_test:',n_data_size_test)
-
-tensor_X_train = torch.from_numpy(X_train)
-print('train_data_size:',tensor_X_train.size())
-tensor_y_train = torch.from_numpy(y_train)
-print('train_label_size:',tensor_y_train.size())
-n_data_size_train = tensor_X_train.size()[0]
-print('n_data_size_train:',n_data_size_train)
-
+tensor_X_train, tensor_y_train, tensor_X_test, tensor_y_test, n_data_size_train, n_data_size_test = load_data(X_train_path, y_train_path, X_test_path, y_test_path, n_steps, shuffle_flag=True)
 
 class LSTM(nn.Module):
   def __init__(self,input_dim,hidden_dim,output_dim,layer_num):
