@@ -103,21 +103,21 @@ y_test = load_y(y_test_path)
 
 # X_train, y_train = shuffle(X_train, y_train)
 
-tensor_X_test = torch.from_numpy(X_test)
+tensor_X_test = torch.tensor(X_test)
 print('test_data_size:',tensor_X_test.size())
-tensor_y_test = torch.from_numpy(y_test)
+tensor_y_test = torch.tensor(y_test)
 print('test_label_size:',tensor_y_test.size())
 n_data_size_test = tensor_X_test.size()[0]
 print('n_data_size_test:',n_data_size_test)
 
-tensor_X_train = torch.from_numpy(X_train)
+tensor_X_train = torch.tensor(X_train)
 print('train_data_size:',tensor_X_train.size())
-tensor_y_train = torch.from_numpy(y_train)
+tensor_y_train = torch.tensor(y_train)
 print('train_label_size:',tensor_y_train.size())
 n_data_size_train = tensor_X_train.size()[0]
 print('n_data_size_train:',n_data_size_train)
 
-loader = DataLoader(zip(tensor_X_train, tensor_y_train), batch_size=32, shuffle=True)
+loader = DataLoader(zip(tensor_X_train, tensor_y_train), batch_size=128, shuffle=True)
 
 class LSTM(nn.Module):
   def __init__(self,input_dim,hidden_dim,output_dim,layer_num):
