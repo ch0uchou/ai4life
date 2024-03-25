@@ -240,7 +240,7 @@ if args.model == None:
 
   for iter in range(1, n_iters + 1):
     # category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
-    for category_tensor, input_sequence in loader:
+    for category_tensor, input_sequence in train_dataset:
       input_sequence = input_sequence.to(device)
       category_tensor = category_tensor.to(device)
       category_tensor = torch.squeeze(category_tensor)
