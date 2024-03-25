@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch
 import random
 import torch.optim as optim
+from torch.utils.data import DataLoader
 import time
 import math
 import random
@@ -116,6 +117,8 @@ print('train_label_size:',tensor_y_train.size())
 n_data_size_train = tensor_X_train.size()[0]
 print('n_data_size_train:',n_data_size_train)
 
+loader = DataLoader(zip(tensor_X_train, tensor_y_train), batch_size=32, shuffle=True)
+
 class LSTM(nn.Module):
   def __init__(self,input_dim,hidden_dim,output_dim,layer_num):
     super(LSTM,self).__init__()
@@ -224,8 +227,8 @@ if args.model == None:
   start = time.time()
 
   for iter in range(1, n_iters + 1):
-
-      category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
+    # category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
+    for category_tensor, input_sequence in loader:
       input_sequence = input_sequence.to(device)
       category_tensor = category_tensor.to(device)
       category_tensor = torch.squeeze(category_tensor)
