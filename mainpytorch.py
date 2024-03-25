@@ -22,7 +22,7 @@ parser.add_argument('--data', default='data', type=str, help='Dataset path', req
 parser.add_argument('--train','-train', action='store_true', help='Run a training') 
 parser.add_argument('--test', '-test', action='store_true', help='Run a test') 
 parser.add_argument('--model', default=None, type=str, help='Model path', required=False)   
-parser.add_argument('--datatxt', )
+parser.add_argument('--datatxt', default=None, type=str, help='Data txt path', required=False)
 args = parser.parse_args()
 dataset_folder = args.data
 
