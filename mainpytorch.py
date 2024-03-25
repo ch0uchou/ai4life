@@ -117,7 +117,6 @@ print('train_label_size:',tensor_y_train.size())
 n_data_size_train = tensor_X_train.size()[0]
 print('n_data_size_train:',n_data_size_train)
 
-loader = DataLoader(zip(tensor_X_train, tensor_y_train), batch_size=32, shuffle=True)
 
 class LSTM(nn.Module):
   def __init__(self,input_dim,hidden_dim,output_dim,layer_num):
