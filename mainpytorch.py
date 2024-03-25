@@ -101,8 +101,6 @@ X_test = load_X(X_test_path)
 y_train = load_y(y_train_path)
 y_test = load_y(y_test_path)
 
-# X_train, y_train = shuffle(X_train, y_train)
-
 tensor_X_test = torch.from_numpy(X_test)
 print('test_data_size:',tensor_X_test.size())
 tensor_y_test = torch.from_numpy(y_test)
@@ -117,7 +115,21 @@ print('train_label_size:',tensor_y_train.size())
 n_data_size_train = tensor_X_train.size()[0]
 print('n_data_size_train:',n_data_size_train)
 
-loader = DataLoader(list(zip(tensor_X_train, tensor_y_train)), batch_size=128, shuffle=True)
+class PoseDataset(torch.utils.data.Dataset):
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.y[idx], self.X[idx]
+
+train_dataset = PoseDataset(tensor_X_train, tensor_y_train)
+test_dataset = PoseDataset(tensor_X_test, tensor_y_test)
+train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
+test_loader = DataLoader(test_dataset, shuffle=False)
 
 class LSTM(nn.Module):
   def __init__(self,input_dim,hidden_dim,output_dim,layer_num):
