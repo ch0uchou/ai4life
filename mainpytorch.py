@@ -101,6 +101,8 @@ X_test = load_X(X_test_path)
 y_train = load_y(y_train_path)
 y_test = load_y(y_test_path)
 
+X_train, y_train = shuffle(X_train, y_train)
+
 tensor_X_test = torch.from_numpy(X_test)
 print('test_data_size:',tensor_X_test.size())
 tensor_y_test = torch.from_numpy(y_test)
@@ -115,21 +117,7 @@ print('train_label_size:',tensor_y_train.size())
 n_data_size_train = tensor_X_train.size()[0]
 print('n_data_size_train:',n_data_size_train)
 
-class PoseDataset(torch.utils.data.Dataset):
-    def __init__(self, X, y):
-        self.X = X
-        self.y = y
-
-    def __len__(self):
-        return len(self.X)
-
-    def __getitem__(self, idx):
-        return self.y[idx], self.X[idx]
-
-train_dataset = PoseDataset(tensor_X_train, tensor_y_train)
-test_dataset = PoseDataset(tensor_X_test, tensor_y_test)
-train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
-test_loader = DataLoader(test_dataset, shuffle=False)
+loader = DataLoader(zip(tensor_X_train, tensor_y_train), batch_size=32, shuffle=True)
 
 class LSTM(nn.Module):
   def __init__(self,input_dim,hidden_dim,output_dim,layer_num):
@@ -219,7 +207,7 @@ if args.model == None:
   optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
   #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-  n_iters = 1000
+  n_iters = 100000
   #n_iters = 60000
   print_every = 1000
   plot_every = 1000
@@ -239,8 +227,7 @@ if args.model == None:
   start = time.time()
 
   for iter in range(1, n_iters + 1):
-    # category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
-    for category_tensor, input_sequence in train_dataset:
+      category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
       input_sequence = input_sequence.to(device)
       category_tensor = category_tensor.to(device)
       category_tensor = torch.squeeze(category_tensor)
