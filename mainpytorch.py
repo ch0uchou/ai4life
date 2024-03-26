@@ -210,7 +210,7 @@ if args.model == None:
       output_val = rnn(input_sequence_val)
       loss_val = criterion(output_val, category_tensor_val)
       val_losses.append(loss_val.item())
-  torch.save(rnn.state_dict(),f'/result/{current_time}final.pkl')
+  torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
   print("Model saved")
 
 def test(flag):
@@ -264,7 +264,7 @@ for i in range(n_categories):
 
 # Print confusion matrix
 
-with open(f'/result/{current_time}loss_conf.npy', 'wb') as f:
+with open(f'result/{current_time}loss_conf.npy', 'wb') as f:
   np.save(f, all_losses)
   print("loss saved")
   np.save(f, val_losses)
