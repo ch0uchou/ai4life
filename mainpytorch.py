@@ -203,7 +203,7 @@ if args.model == None:
           all_losses.append(current_loss / plot_every)
           current_loss = 0
       for i in range(n_data_size_test):    
-        category_tensor_val, input_sequence_val = randomTrainingExampleBatch(1,'test',i)
+        category_tensor_val, input_sequence_val = randomTrainingExampleBatch(n_data_size_test,'test',0)
         print(category_tensor_val)
         input_sequence_val = input_sequence_val.to(device)
         category_tensor_val = category_tensor_val.to(device)
