@@ -204,7 +204,6 @@ if args.model == None:
           current_loss = 0    
       
       category_tensor_val, input_sequence_val = randomTrainingExampleBatch(n_data_size_test,'test',0)
-      print(category_tensor_val)
       input_sequence_val = input_sequence_val.to(device)
       category_tensor_val = category_tensor_val.to(device)
       category_tensor_val = torch.squeeze(category_tensor_val)
