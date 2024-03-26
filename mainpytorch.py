@@ -203,13 +203,12 @@ if args.model == None:
       if iter % plot_every == 0:
           all_losses.append(current_loss / plot_every)
           current_loss = 0
-          
-      input_sequence_val = tensor_X_test.to(device)
-      category_tensor_val = tensor_y_test.to(device)
-      category_tensor_val = torch.squeeze(category_tensor_val)
-      output_val = rnn(input_sequence_val)
-      loss_val = criterion(output_val, category_tensor_val)
-      val_losses.append(loss_val.item())
+      for i in range(n_data_size_test):    
+        category_tensor_val, input_sequence_val = randomTrainingExampleBatch(1,'test',i)
+        category_tensor_val = torch.squeeze(category_tensor_val)
+        output_val = rnn(input_sequence_val)
+        loss_val = criterion(output_val, category_tensor_val)
+        val_losses.append(loss_val.item())
   torch.save(rnn.state_dict(),f'resul/{current_time}final.pkl')
   print("Model saved")
 
