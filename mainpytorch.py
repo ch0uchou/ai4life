@@ -86,7 +86,6 @@ class LSTM(nn.Module):
 
 
   def forward(self,inputs):
-    print(inputs.shape)
     x = self.bn(inputs)
     lstm_out,_ = self.lstm(x)
     out = self.fc(lstm_out[:,-1,:])
@@ -205,11 +204,11 @@ if args.model == None:
           current_loss = 0
       for i in range(n_data_size_test):    
         category_tensor_val, input_sequence_val = randomTrainingExampleBatch(1,'test',i)
+        assert len(category_tensor_val) > 0, "Target data is empty."
         input_sequence_val = input_sequence_val.to(device)
         category_tensor_val = category_tensor_val.to(device)
         category_tensor_val = torch.squeeze(category_tensor_val)
         output_val = rnn(input_sequence_val)
-        print(output_val)
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
   torch.save(rnn.state_dict(),f'resul/{current_time}final.pkl')
