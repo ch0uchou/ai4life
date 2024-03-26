@@ -203,6 +203,15 @@ if args.model == None:
       if iter % plot_every == 0:
           all_losses.append(current_loss / plot_every)
           current_loss = 0
+          
+      for i in n_data_size_test:
+        category_tensor_val, input_sequence_val = randomTrainingExampleBatch(batch_size,'test',i)
+        input_sequence_val = input_sequence_val.to(device)
+        category_tensor_val = category_tensor_val.to(device)
+        category_tensor_val = torch.squeeze(category_tensor_val)
+        output_val = rnn(input_sequence_val)
+        loss_val = criterion(output_val, category_tensor_val)
+        val_losses.append(loss_val.item())
   torch.save(rnn.state_dict(),f'resul/{current_time}final.pkl')
   print("Model saved")
 
@@ -257,7 +266,11 @@ for i in range(n_categories):
 
 # Print confusion matrix
 
-with open(f'result/{current_time}confusion.npy', 'wb') as f:
+with open(f'result/{current_time}loss_conf.npy', 'wb') as f:
+  np.save(f, all_losses)
+  print("loss saved")
+  np.save(f, val_losses)
+  print("val loss saved")
   np.save(f, confusion.numpy())
   print("confusion matrix saved")
 
