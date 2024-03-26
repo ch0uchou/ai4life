@@ -1,6 +1,9 @@
 import numpy as np
 from sklearn.utils import shuffle
 import torch
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+
 
 # Load the networks inputs
 
@@ -57,3 +60,34 @@ def load_data(X_train_path, y_train_path, X_test_path, y_test_path, n_frame = 32
   n_data_size_train = tensor_X_train.size()[0]
   print('n_data_size_train:',n_data_size_train)
   return tensor_X_train, tensor_y_train, tensor_X_test, tensor_y_test, n_data_size_train, n_data_size_test
+
+def plot(file_path, LABELS):
+    with open(f'{file_path}', 'rb') as f:
+        train_losses = np.load(f)
+        val_losses = np.load(f)
+        confusion = np.load(f)
+    
+    plt.figure()
+    plt.subplot(2, 1, 1)
+    plt.plot(train_losses)
+    plt.title('Train Losses')
+    plt.subplot(2, 1, 2)
+    plt.plot(val_losses)
+    plt.title('Validation Losses')
+    
+    # Set up plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cax = ax.matshow(confusion)
+    fig.colorbar(cax)
+
+    # Set up axes
+    ax.set_xticklabels([''] + LABELS, rotation=90)
+    ax.set_yticklabels([''] + LABELS)
+
+    # Force label at every tick
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+
+    # sphinx_gallery_thumbnail_number = 2
+    plt.show()
