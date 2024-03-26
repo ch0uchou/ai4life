@@ -57,6 +57,3 @@ def load_data(X_train_path, y_train_path, X_test_path, y_test_path, n_frame = 32
   n_data_size_train = tensor_X_train.size()[0]
   print('n_data_size_train:',n_data_size_train)
   return tensor_X_train, tensor_y_train, tensor_X_test, tensor_y_test, n_data_size_train, n_data_size_test
-
-
-a= load_X("/Users/chouchou/chou/github/ai4life/dataX_train.txt", 32)
