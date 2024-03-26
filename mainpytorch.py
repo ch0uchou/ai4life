@@ -180,7 +180,7 @@ else:
     start = time.time()
 
     for iter in range(1, n_iters + 1):
-        category_tensor, input_sequence = randomTrainingExampleBatch(batch_size,'train')
+        category_tensor, input_sequence = tensor_y_train.long(), tensor_X_train
         input_sequence = input_sequence.to(device)
         category_tensor = category_tensor.to(device)
         category_tensor = torch.squeeze(category_tensor)
@@ -205,7 +205,7 @@ else:
         if iter % plot_every == 0:
           all_losses.append(current_loss / plot_every)
           current_loss = 0    
-
+          
         category_tensor_val, input_sequence_val = randomTrainingExampleBatch(n_data_size_test,'test',0)
         input_sequence_val = input_sequence_val.to(device)
         category_tensor_val = category_tensor_val.to(device)
