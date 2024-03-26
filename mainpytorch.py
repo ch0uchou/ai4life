@@ -210,7 +210,7 @@ if args.model == None:
       output_val = rnn(input_sequence_val)
       loss_val = criterion(output_val, category_tensor_val)
       val_losses.append(loss_val.item())
-  torch.save(rnn.state_dict(),f'resul/{current_time}final.pkl')
+  torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
   print("Model saved")
 
 def test(flag):
