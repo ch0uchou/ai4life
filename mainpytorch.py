@@ -166,9 +166,9 @@ else:
         input_sequence = input_sequence.to(device)
         category_tensor = category_tensor.to(device)
         category_tensor = torch.squeeze(category_tensor)
+        output = rnn(input_sequence)
 
         optimizer.zero_grad()
-        output = rnn(input_sequence)
         loss = criterion(output, category_tensor)
         loss.backward()
         optimizer.step()
@@ -178,7 +178,7 @@ else:
         category = LABELS[int(category_tensor[0])]
 
         # Print iter number, loss, name and guess
-        if iter % print_every == 0:
+        if iter % print_every == 0: 
             guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
             correct = '✓' if guess == category else '✗ (%s)' % category
             print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))

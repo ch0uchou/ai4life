@@ -118,4 +118,4 @@ def get_output_from_model(model, X, y, n_categories, device='cuda'):
     category_tensor = category_tensor.to(device)
     category_tensor = torch.squeeze(category_tensor)
     output = model(input_sequence)
-    return output
+    return output, category_tensor
