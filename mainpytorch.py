@@ -14,7 +14,7 @@ import argparse
 from utils import load_data, plot
 from yolomodel import *
 from datetime import datetime
-from ignite.metrics import *
+from torchmetrics import *
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
