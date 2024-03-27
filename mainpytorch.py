@@ -238,8 +238,7 @@ else:
       print(flag,'accuracy',right/n)
 
   print(test('test'))
-  if args.train:
-    print(test('train'))
+  print(test('train'))
   # print(f'loss: {all_losses}')
   # plt.figure()
   # plt.plot(all_losses)
