@@ -87,8 +87,6 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
     current_loss = 0
     all_losses = []
     val_losses = []
-    train_accuracies = []
-    val_accuracies = []
     best_model = None
     def timeSince(since):
         now = time.time()
@@ -118,11 +116,8 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
         
-        train_accuracies.append(accuracy(output, category_tensor, n_categories))
-        val_accuracy = accuracy(output_val, category_tensor_val, n_categories)
-        if (val_accuracy > (max(val_accuracies) if len(val_accuracies) > 0 else 0)):
+        if (loss_val < (min(val_losses) if len(val_losses) > 0 else 1000000)):
           best_model = copy.deepcopy(rnn)
-        val_accuracies.append(val_accuracy)
         # Print iter number, loss, name and guess
         if iter % print_every == 0: 
             guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
@@ -135,10 +130,6 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
       print("loss saved")
       np.save(f, val_losses)
       print("val loss saved")
-      np.save(f, train_accuracies)
-      print("accuracy train saved")
-      np.save(f, val_accuracies)
-      print("accuracy val saved")
 
 def test(rnn, tensor_X_test, tensor_y_test, n_categories):
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())

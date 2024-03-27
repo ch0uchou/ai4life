@@ -58,9 +58,6 @@ def plot_loss_acc(file_path, LABELS):
     with open(f'{file_path}', 'rb') as f:
         train_losses = np.load(f)
         val_losses = np.load(f)
-        train_accuracies = np.load(f)
-        val_accuracies = np.load(f)
-        confusion = np.load(f)
     print(np.argmin(val_losses))
     plt.figure()
     plt.subplot(2, 1, 1)
@@ -69,12 +66,6 @@ def plot_loss_acc(file_path, LABELS):
     plt.subplot(2, 1, 2)
     plt.plot(val_losses)
     plt.title('Validation Losses')
-    plt.subplot(2, 1, 1)
-    plt.plot(train_accuracies)
-    plt.title('Train Accuracies')
-    plt.subplot(2, 1, 2)
-    plt.plot(val_accuracies)
-    plt.title('Validation Accuracies')
     plt.show()
     
 
