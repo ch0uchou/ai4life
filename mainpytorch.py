@@ -14,6 +14,8 @@ import argparse
 from utils import load_data, plot
 from yolomodel import *
 from datetime import datetime
+from ignite.metrics import *
+
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 parser = argparse.ArgumentParser(description='Process some input')
@@ -202,6 +204,7 @@ else:
         return '%dm %ds' % (m, s)
 
     start = time.time()
+    accuracy_ = Accuracy(task = 'multiclass', num_classes = n_categories, top_k = 1)
 
     for iter in range(1, n_iters + 1):
         category_tensor, input_sequence = tensor_y_train.long(), tensor_X_train
@@ -241,7 +244,7 @@ else:
         print(input_sequence_val.size())
         print(output_val.topk(1)[1])
         # print(categoryFromOutput(output_val))
-        print(torch.sum(output_val.topk(1)[1] == category_tensor_val))
+        print(accuracy_(output_val, category_tensor_val))
         break
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
     print("Model saved")
