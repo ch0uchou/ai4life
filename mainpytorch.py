@@ -196,8 +196,8 @@ else:
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
         
-        accuracy_train.append(accuracy(output, category_tensor))
-        accuracy_val.append(accuracy(output_val, category_tensor_val))
+        accuracy_train.append(accuracy(output, category_tensor, n_categories))
+        accuracy_val.append(accuracy(output_val, category_tensor_val, n_categories))
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
     print("Model saved")
     with open(f'result/{current_time}loss_conf.npy', 'wb') as f:

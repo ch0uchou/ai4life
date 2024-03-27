@@ -112,7 +112,7 @@ def confusion_matrix(pred, target, n_categories, device='cuda'):
         confusion[i] = confusion[i] / confusion[i].sum()
     return confusion
 
-def get_output_from_model(model, X, y, n_categories, device='cuda'):
+def get_output_from_model(model, X, y, device='cuda'):
     category_tensor, input_sequence = y.long(), X
     input_sequence = input_sequence.to(device)
     category_tensor = category_tensor.to(device)
