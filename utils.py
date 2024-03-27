@@ -42,16 +42,16 @@ def load_data(X_path, y_path, train_flag = True, n_frame = 32, shuffle_flag=True
   X_= load_X(X_path, n_frame)
   y_= load_y(y_path)
   
-  if train_flag:
+  if train_flag == True:
     if shuffle_flag:
         X_, y_= shuffle(X_, y_)
         
   tensor_X= torch.from_numpy(X_).to(device)
-  print('test_data_size:',tensor_X_test.size())
+  print('test_data_size:',tensor_X.size())
   tensor_y= torch.from_numpy(y_).to(device)
-  print('test_label_size:',tensor_y_test.size())
-  n_data_size= tensor_X_test.size()[0]
-  print('n_data_size_test:',n_data_size_test)
+  print('test_label_size:',tensor_y.size())
+  n_data_size= tensor_X.size()[0]
+  print('n_data_size_test:',n_data_size)
   return tensor_X, tensor_y, n_data_size
 
 def plot_loss_acc(file_path, LABELS):
