@@ -148,12 +148,13 @@ else:
   else:
     rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
   print("model loaded")
-  
+
   def categoryFromOutput(output):
     top_n, top_i = output.topk(1)
     category_i = top_i[0].item()
     return LABELS[category_i], category_i
   
+  print("start training")
   def accuracy(flag):
       if flag == 'train':
           n = n_data_size_train
@@ -173,8 +174,11 @@ else:
               if category_i == guess_i:
                   right+=1
       return right/n
+  print("start training")
 
   if args.model == None: 
+    print("start training")
+
     criterion = nn.CrossEntropyLoss()
     learning_rate = 0.0005
     optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
@@ -183,7 +187,7 @@ else:
     n_iters = 22111
     #n_iters = 60000
     print_every = 1000
-    plot_every = 1000
+    plot_every = 100
     batch_size = 128
 
     # Keep track of losses for plotting
