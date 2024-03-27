@@ -214,7 +214,6 @@ else:
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
-    print(category_tensor_val)
     print("Model saved")
 
   def test(flag):
