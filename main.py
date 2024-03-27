@@ -87,7 +87,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
     current_loss = 0
     all_losses = []
     val_losses = []
-    best_model = None
+    min_val_loss = 1000000
     def timeSince(since):
         now = time.time()
         s = now - since
@@ -116,20 +116,21 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
         
-        if (loss_val < (min(val_losses) if len(val_losses) > 0 else 1000000)):
-          best_model = copy.deepcopy(rnn)
+        if (loss_val <= min_val_loss):
+          torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
+          min_val_loss = loss_val
         # Print iter number, loss, name and guess
         if iter % print_every == 0: 
             guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
             correct = '✓' if guess == category else '✗ (%s)' % category
             print('%d %d%% (%s) loss: %.4f val_loss: %.4f / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, loss_val, guess, correct))
-    torch.save(best_model.state_dict(),f'result/{current_time}final.pkl')
     print("best model saved")
     with open(f'result/{current_time}loss.npy', 'wb') as f:
       np.save(f, all_losses)
       print("loss saved")
       np.save(f, val_losses)
       print("val loss saved")
+
 
 def test(rnn, tensor_X_test, tensor_y_test, n_categories):
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
