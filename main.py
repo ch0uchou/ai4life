@@ -102,7 +102,7 @@ else:
     optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
     #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-    n_iters = 100000
+    n_iters = 60000
     #n_iters = 60000
     print_every = 1000
     batch_size = 128
