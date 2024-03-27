@@ -99,18 +99,17 @@ else:
     optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
     #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-    n_iters = 2000
+    n_iters = 100000
     #n_iters = 60000
     print_every = 1000
-    plot_every = 100
     batch_size = 128
 
     # Keep track of losses for plotting
     current_loss = 0
     all_losses = []
     val_losses = []
-    accuracy_train = []
-    accuracy_val = []
+    train_accuracies = []
+    val_accuracies = []
     def timeSince(since):
         now = time.time()
         s = now - since
@@ -145,20 +144,21 @@ else:
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
         
-        accuracy_train.append(accuracy(output, category_tensor, n_categories))
-        accuracy_val.append(accuracy(output_val, category_tensor_val, n_categories))
-    torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
-    print("Model saved")
+        train_accuracies.append(accuracy(output, category_tensor, n_categories))
+        val_accuracy = accuracy(output_val, category_tensor_val, n_categories)
+        val_accuracies.append(val_accuracy)
+        if (val_accuracy > (max(val_accuracies) if len(val_accuracies) > 0 else 0)):
+          torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
+          print(f"find accuracy {val_accuracy} > {(max(val_accuracies) if len(val_accuracies) > 0 else 0)} save model")
     with open(f'result/{current_time}loss.npy', 'wb') as f:
       np.save(f, all_losses)
       print("loss saved")
       np.save(f, val_losses)
       print("val loss saved")
-      np.save(f, accuracy_train)
+      np.save(f, train_accuracies)
       print("accuracy train saved")
-      np.save(f, accuracy_val)
+      np.save(f, val_accuracies)
       print("accuracy val saved")
-
 
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
   print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
