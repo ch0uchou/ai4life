@@ -28,6 +28,9 @@ args = parser.parse_args()
 dataset_folder = args.data
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+if not os.path.isdir("result"):
+    os.makedirs("result")
+  
 LABELS = [
   "russian twist",
   "tricep dips",
