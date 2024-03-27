@@ -141,11 +141,11 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories):
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
   print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
   confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
-  f1_score = f1_score(output_test, category_tensor_test, n_categories)
+  f1 = f1_score(output_test, category_tensor_test, n_categories)
   with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
       np.save(f, confusion)
       print("confusion matrix saved")
-      np.save(f, f1_score.numpy())
+      np.save(f, f1.numpy())
       print("f1 score saved")
 
 if args.plot != None:
