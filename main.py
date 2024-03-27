@@ -168,13 +168,14 @@ else:
       print("Please provide a model path")
       exit()
 
-rnn = load_model(args.model, n_joints, n_hidden, n_categories, n_layer)
-print("model loaded")
-
-if args.model == None: 
+if args.train: 
+  rnn = load_model(None, n_joints, n_hidden, n_categories, n_layer)
+  print("model loaded")
   trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps)
 
-else:
+if args.test:
+  rnn = load_model(args.model, n_joints, n_hidden, n_categories, n_layer)
+  print("model loaded")
   tensor_X_test, tensor_y_test, n_data_size_test = load_data(X_test_path, y_test_path, n_frame=n_steps, shuffle_flag=False, train_flag=False)
   test(rnn, tensor_X_test, tensor_y_test, n_categories)
  
