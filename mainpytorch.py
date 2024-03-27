@@ -147,7 +147,8 @@ else:
     rnn = rnn.to(device)
   else:
     rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
-
+  print("model loaded")
+  
   def categoryFromOutput(output):
     top_n, top_i = output.topk(1)
     category_i = top_i[0].item()
