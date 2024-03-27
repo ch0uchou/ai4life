@@ -171,6 +171,6 @@ if args.model == None:
   trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps)
 
 else:
-  tensor_X_test, tensor_y_test, n_data_size_test = load_data(X_test_path, y_test_path, n_steps, shuffle_flag=False, train_flag=False)
+  tensor_X_test, tensor_y_test, n_data_size_test = load_data(X_test_path, y_test_path, n_frame=n_steps, shuffle_flag=False, train_flag=False)
   test(rnn, tensor_X_test, tensor_y_test, n_categories)
  
