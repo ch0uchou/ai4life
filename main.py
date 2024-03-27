@@ -107,12 +107,6 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
 
         category = LABELS[int(category_tensor[0])]
 
-        # Print iter number, loss, name and guess
-        if iter % print_every == 0: 
-            guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
-            correct = '✓' if guess == category else '✗ (%s)' % category
-            print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
-
         #get loss of train set every plot_every iterations
         all_losses.append(loss.item())  
       
@@ -135,6 +129,11 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
             # print("accuracy train saved")
             np.save(f, val_accuracies)
             # print("accuracy val saved")
+                # Print iter number, loss, name and guess
+        if iter % print_every == 0: 
+            guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
+            correct = '✓' if guess == category else '✗ (%s)' % category
+            print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, val_accuracy, guess, correct))
     print("best model saved")
 
 def test(rnn, tensor_X_test, tensor_y_test, n_categories):
