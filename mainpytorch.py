@@ -204,7 +204,7 @@ else:
         return '%dm %ds' % (m, s)
 
     start = time.time()
-    accuracy_ = Accuracy(task = 'multiclass', num_classes = n_categories)
+    accuracy_ = Accuracy(task = 'multiclass', num_classes = n_categories).to(device)
 
     for iter in range(1, n_iters + 1):
         category_tensor, input_sequence = tensor_y_train.long(), tensor_X_train
@@ -243,7 +243,7 @@ else:
         
         print(input_sequence_val.size())
         print(torch.reshape(output_val.topk(1)[1],(-1,)))
-        # print(categoryFromOutput(output_val))
+        print(category_tensor_val)
         print(accuracy_(torch.reshape(output_val.topk(1)[1],(-1,)), category_tensor_val))
         break
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
