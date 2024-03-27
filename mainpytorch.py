@@ -136,11 +136,10 @@ else:
             correct = '✓' if guess == category else '✗ (%s)' % category
             print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
 
-        # Add current loss avg to list of losses
-        if iter % plot_every == 0:
-          all_losses.append(current_loss / plot_every)
-          current_loss = 0    
-          
+        #get loss of train set every plot_every iterations
+        all_losses.append(loss.item())  
+      
+        #get loss of val set every plot_every iterations
         output_val, category_tensor_val = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
@@ -161,7 +160,7 @@ else:
 
 
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
-  print(accuracy(output_val, category_tensor_test, n_categories))
+  print(accuracy(output_val, category_tensor_test, n_categories).item())
   confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
   with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
       np.save(f, confusion)
