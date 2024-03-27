@@ -153,8 +153,8 @@ elif args.txt:
   y_train_path = "20240326-140332dataY_train.txt"
   X_val_path = "20240326-140332dataX_test.txt"
   y_val_path = "20240326-140332dataY_test.txt"
-  X_test_path = "20240326-140332dataX_test.txt"
-  y_test_path = "20240326-140332dataY_test.txt"
+  X_test_path = "20240327-194407dataX.txt"
+  y_test_path = "20240327-194407dataY.txt"
 else:
   if args.train:
     X_train_path, y_train_path, X_val_path, y_val_path = get_trainset(dataset_folder, LABELS, current_time)
