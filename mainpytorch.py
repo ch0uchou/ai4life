@@ -11,7 +11,7 @@ import time
 import math
 import matplotlib.ticker as ticker
 import argparse
-from utils import load_data, plot, accuracy, confusion_matrix, get_output_from_model
+from utils import *
 from yolomodel import *
 from datetime import datetime
 from model import LSTM
@@ -23,7 +23,7 @@ parser.add_argument('--data', default='data', type=str, help='Dataset path', req
 parser.add_argument('--train','-train', action='store_true', help='Run a training') 
 parser.add_argument('--test', '-test', action='store_true', help='Run a test') 
 parser.add_argument('--model', default=None, type=str, help='Model path', required=False)   
-parser.add_argument('--output', default=None, type=str, help='npy path to plot loss ', required=False)
+parser.add_argument('--plot', default=None, type=str, help='npy path to plot loss ', required=False)
 args = parser.parse_args()
 dataset_folder = args.data
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -54,8 +54,9 @@ LABELS = [
 ]
 current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-if args.output != None:
- plot(args.output, LABELS)
+if args.plot != None:
+  # plot_loss_acc(args.plot, LABELS)
+  plot_confusion_matrix(args.plot, LABELS)
 else:
   if args.train:
     X_train_path, y_train_path, X_test_path, y_test_path = train(dataset_folder, LABELS, current_time)

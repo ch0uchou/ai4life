@@ -62,7 +62,7 @@ def load_data(X_train_path, y_train_path, X_test_path, y_test_path, n_frame = 32
   print('n_data_size_train:',n_data_size_train)
   return tensor_X_train, tensor_y_train, tensor_X_test, tensor_y_test, n_data_size_train, n_data_size_test
 
-def plot(file_path, LABELS):
+def plot_loss_acc(file_path, LABELS):
     with open(f'{file_path}', 'rb') as f:
         train_losses = np.load(f)
         val_losses = np.load(f)
@@ -83,7 +83,12 @@ def plot(file_path, LABELS):
     plt.subplot(2, 1, 2)
     plt.plot(val_accuracies)
     plt.title('Validation Accuracies')
+    plt.show()
     
+
+def plot_confusion_matrix(file_path, LABELS):
+    with open(f'{file_path}', 'rb') as f:
+        confusion = np.load(f)
     # Set up plot
     fig = plt.figure()
     ax = fig.add_subplot(111)
