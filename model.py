@@ -14,7 +14,7 @@ class LSTM(nn.Module):
         self.relu = nn.ReLU()
         self.lstm1 = nn.LSTM(input_size=64, hidden_size=hidden_dim, num_layers=layer_num, batch_first=True)
         self.lstm2 = nn.LSTM(input_size=hidden_dim, hidden_size=hidden_dim, num_layers=layer_num, batch_first=True)
-        self.fc = nn.Linear(hidden_dim, n_categories)
+        self.fc = nn.Linear(hidden_dim, 22)
 
     def forward(self, inputs):
         # x = self.bn(inputs)
