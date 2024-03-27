@@ -155,9 +155,9 @@ def train(dataset_folder, LABELS, current_time):
 def test(dataset_folder, LABELS, current_time):
   print("Testing")
   reprocess(dataset_folder, LABELS, current_time)
-  file_path_trainx = f"{current_time}dataX.txt"
-  file_path_trainy = f"{current_time}dataY.txt"
+  file_path_trainx = f"{current_time}data_testX.txt"
+  file_path_trainy = f"{current_time}data_testY.txt"
 
-  file_path_testx = f"{current_time}dataX.txt"
-  file_path_testy = f"{current_time}dataY.txt"
+  file_path_testx = f"{current_time}data_testX.txt"
+  file_path_testy = f"{current_time}data_testY.txt"
   return file_path_trainx, file_path_trainy, file_path_testx, file_path_testy
