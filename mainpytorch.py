@@ -190,7 +190,6 @@ else:
                 #     print(f"guess: {guess}, category: {category}")
                 if category_i == guess_i:
                     right += 1
-        print(flag, "accuracy", right / n)
         return right / n
 
     if args.model == None:
@@ -275,8 +274,8 @@ else:
         torch.save(rnn.state_dict(), f"result/{current_time}final.pkl")
         print("Model saved")
 
-    print(test_data("test"))
-    print(test_data("train"))
+    print(f"test accuracy: {test_data("test")}")
+    print(f"train accuracy: {test_data("train")}")
     # print(f'loss: {all_losses}')
     # plt.figure()
     # plt.plot(all_losses)
