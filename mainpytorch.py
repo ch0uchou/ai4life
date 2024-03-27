@@ -156,25 +156,10 @@ else:
     category_i = top_i[0].item()
     return LABELS[category_i], category_i
   
-  def accuracy(flag):
-      if flag == 'train':
-          n = n_data_size_train
-      elif flag == 'test':
-          n = n_data_size_test
-      with torch.no_grad():
-          right = 0
-          for i in range(n):
-              category_tensor, inputs = randomTrainingExampleBatch(1,flag,i)
-              category = LABELS[int(category_tensor[0])]
-              inputs = inputs.to(device)
-              output = rnn(inputs)
-              guess, guess_i = categoryFromOutput(output)
-              category_i = LABELS.index(category)
-              # if flag == 'test':
-              #     print(f"guess: {guess}, category: {category}")
-              if category_i == guess_i:
-                  right+=1
-      return right/n
+  def accuracy(pred, target):
+    accuracy_ = Accuracy(task = 'multiclass', num_classes = n_categories).to(device)
+    return accuracy_(torch.reshape(pred.topk(1)[1],(-1,)), target).cpu()
+
 
   if args.model == None: 
     print("start training")
@@ -204,7 +189,6 @@ else:
         return '%dm %ds' % (m, s)
 
     start = time.time()
-    accuracy_ = Accuracy(task = 'multiclass', num_classes = n_categories).to(device)
 
     for iter in range(1, n_iters + 1):
         category_tensor, input_sequence = tensor_y_train.long(), tensor_X_train
@@ -241,11 +225,8 @@ else:
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
         
-        print(input_sequence_val.size())
-        print(torch.reshape(output_val.topk(1)[1],(-1,)))
-        print(category_tensor_val)
-        print(accuracy_(torch.reshape(output_val.topk(1)[1],(-1,)), category_tensor_val))
-        break
+        accuracy_train.append(accuracy(output, category_tensor))
+        accuracy_val.append(accuracy(output_val, category_tensor_val))
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
     print("Model saved")
 
