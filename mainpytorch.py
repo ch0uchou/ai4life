@@ -274,8 +274,8 @@ else:
         torch.save(rnn.state_dict(), f"result/{current_time}final.pkl")
         print("Model saved")
 
-    print(f"test accuracy: {test_data("test")}")
-    print(f"train accuracy: {test_data("train")}")
+    print(f"test accuracy: {test_data('test')}")
+    print(f"train accuracy: {test_data('train')}")
     # print(f'loss: {all_losses}')
     # plt.figure()
     # plt.plot(all_losses)
