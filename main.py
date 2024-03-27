@@ -87,6 +87,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
     val_losses = []
     train_accuracies = []
     val_accuracies = []
+    best_model = None
     def timeSince(since):
         now = time.time()
         s = now - since
@@ -118,13 +119,14 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         train_accuracies.append(accuracy(output, category_tensor, n_categories))
         val_accuracy = accuracy(output_val, category_tensor_val, n_categories)
         if (val_accuracy > (max(val_accuracies) if len(val_accuracies) > 0 else 0)):
-          torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
+          best_model = rnn
         val_accuracies.append(val_accuracy)
         # Print iter number, loss, name and guess
         if iter % print_every == 0: 
             guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
             correct = '✓' if guess == category else '✗ (%s)' % category
-            print('%d %d%% (%s) loss: %.4f val_loss: %.4f / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, val_accuracy, guess, correct))
+            print('%d %d%% (%s) loss: %.4f val_loss: %.4f / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, loss_val, guess, correct))
+    torch.save(best_model.state_dict(),f'result/{current_time}final.pkl')
     print("best model saved")
     with open(f'result/{current_time}loss.npy', 'wb') as f:
       np.save(f, all_losses)
