@@ -200,17 +200,19 @@ else:
         accuracy_val.append(accuracy(output_val, category_tensor_val))
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
     print("Model saved")
+    with open(f'result/{current_time}loss_conf.npy', 'wb') as f:
+      np.save(f, all_losses)
+      print("loss saved")
+      np.save(f, val_losses)
+      print("val loss saved")
+      np.save(f, accuracy_train)
+      print("accuracy train saved")
+      np.save(f, accuracy_val)
+      print("accuracy val saved")
+      # np.save(f, confusion.numpy())
+      # print("confusion matrix saved")
+
 
   # confusion = confusion_matrix()
 
-  with open(f'result/{current_time}loss_conf.npy', 'wb') as f:
-    np.save(f, all_losses)
-    print("loss saved")
-    np.save(f, val_losses)
-    print("val loss saved")
-    np.save(f, accuracy_train)
-    print("accuracy train saved")
-    np.save(f, accuracy_val)
-    print("accuracy val saved")
-    # np.save(f, confusion.numpy())
-    # print("confusion matrix saved")
+ 
