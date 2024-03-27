@@ -120,21 +120,21 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         if (val_accuracy > (max(val_accuracies) if len(val_accuracies) > 0 else 0)):
           torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
         val_accuracies.append(val_accuracy)
-        with open(f'result/{current_time}loss.npy', 'wb') as f:
-            np.save(f, all_losses)
-            # print("loss saved")
-            np.save(f, val_losses)
-            # print("val loss saved")
-            np.save(f, train_accuracies)
-            # print("accuracy train saved")
-            np.save(f, val_accuracies)
-            # print("accuracy val saved")
-                # Print iter number, loss, name and guess
+        # Print iter number, loss, name and guess
         if iter % print_every == 0: 
             guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
             correct = '✓' if guess == category else '✗ (%s)' % category
             print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, val_accuracy, guess, correct))
     print("best model saved")
+    with open(f'result/{current_time}loss.npy', 'wb') as f:
+      np.save(f, all_losses)
+      print("loss saved")
+      np.save(f, val_losses)
+      print("val loss saved")
+      np.save(f, train_accuracies)
+      print("accuracy train saved")
+      np.save(f, val_accuracies)
+      print("accuracy val saved")
 
 def test(rnn, tensor_X_test, tensor_y_test, n_categories):
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
