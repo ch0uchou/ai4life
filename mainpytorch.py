@@ -242,9 +242,9 @@ else:
         val_losses.append(loss_val.item())
         
         print(input_sequence_val.size())
-        print(output_val.topk(1)[1])
+        print(torch.reshape(output_val.topk(1)[1],(-1,)))
         # print(categoryFromOutput(output_val))
-        print(accuracy_(output_val.topk(1), category_tensor_val))
+        print(accuracy_(torch.reshape(output_val.topk(1)[1],(-1,)), category_tensor_val))
         break
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
     print("Model saved")
