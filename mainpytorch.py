@@ -172,6 +172,27 @@ else:
         category_i = top_i[0].item()
         return LABELS[category_i], category_i
 
+    def test_data(flag):
+        if flag == "train":
+            n = n_data_size_train
+        elif flag == "test":
+            n = n_data_size_test
+        with torch.no_grad():
+            right = 0
+            for i in range(n):
+                category_tensor, inputs = randomTrainingExampleBatch(1, flag, i)
+                category = LABELS[int(category_tensor[0])]
+                inputs = inputs.to(device)
+                output = rnn(inputs)
+                guess, guess_i = categoryFromOutput(output)
+                category_i = LABELS.index(category)
+                # if flag == 'test':
+                #     print(f"guess: {guess}, category: {category}")
+                if category_i == guess_i:
+                    right += 1
+        print(flag, "accuracy", right / n)
+        return right / n
+
     if args.model == None:
         criterion = nn.CrossEntropyLoss()
         learning_rate = 0.0005
@@ -248,35 +269,14 @@ else:
             loss_val = criterion(output_val, category_tensor_val)
             val_losses.append(loss_val.item())
 
-            train_accuracy.append(test("train"))
-            val_accuracy.append(test("test"))
+            train_accuracy.append(test_data("train"))
+            val_accuracy.append(test_data("test"))
 
         torch.save(rnn.state_dict(), f"result/{current_time}final.pkl")
         print("Model saved")
 
-    def test(flag):
-        if flag == "train":
-            n = n_data_size_train
-        elif flag == "test":
-            n = n_data_size_test
-        with torch.no_grad():
-            right = 0
-            for i in range(n):
-                category_tensor, inputs = randomTrainingExampleBatch(1, flag, i)
-                category = LABELS[int(category_tensor[0])]
-                inputs = inputs.to(device)
-                output = rnn(inputs)
-                guess, guess_i = categoryFromOutput(output)
-                category_i = LABELS.index(category)
-                # if flag == 'test':
-                #     print(f"guess: {guess}, category: {category}")
-                if category_i == guess_i:
-                    right += 1
-        print(flag, "accuracy", right / n)
-        return right / n
-
-    print(test("test"))
-    print(test("train"))
+    print(test_data("test"))
+    print(test_data("train"))
     # print(f'loss: {all_losses}')
     # plt.figure()
     # plt.plot(all_losses)
