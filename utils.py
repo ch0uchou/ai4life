@@ -119,7 +119,7 @@ def load_model(file_path, n_joints, n_hidden, n_categories, n_layer, device='cud
         rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
     else:
         rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
-        model_file_path = args.model
+        model_file_path = file_path
         rnn.load_state_dict(torch.load(model_file_path))
         rnn.eval()
         rnn = rnn.to(device)
