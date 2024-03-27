@@ -241,6 +241,7 @@ else:
         print(input_sequence_val.size())
         print(output_val)
         print(output_val.size())
+        print(output_val[0],category_tensor_val[0])
         print(output_val[0].topk(1))
         print(categoryFromOutput(output_val))
         print(category_tensor_val)
