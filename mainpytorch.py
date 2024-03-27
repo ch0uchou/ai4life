@@ -129,7 +129,13 @@ else:
         current_loss += loss.item()
 
         category = LABELS[int(category_tensor[0])]
-        
+
+        # Print iter number, loss, name and guess
+        if iter % print_every == 0: 
+            guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
+            correct = '✓' if guess == category else '✗ (%s)' % category
+            print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
+
         #get loss of train set every plot_every iterations
         all_losses.append(loss.item())  
       
@@ -140,17 +146,10 @@ else:
         
         train_accuracies.append(accuracy(output, category_tensor, n_categories))
         val_accuracy = accuracy(output_val, category_tensor_val, n_categories)
+        if (val_accuracy > (max(val_accuracies) if len(val_accuracies) > 0 else 0)):
+          torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
         val_accuracies.append(val_accuracy)
-
-        # Print iter number, loss, name and guess
-        if iter % print_every == 0: 
-            guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
-            correct = '✓' if guess == category else '✗ (%s)' % category
-            print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
-            if (val_accuracy > max(val_accuracies)):
-              torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
-              print(f"find accuracy {val_accuracy} > {max(val_accuracies)} save model")
-
+    print("model saved")
     with open(f'result/{current_time}loss.npy', 'wb') as f:
       np.save(f, all_losses)
       print("loss saved")
