@@ -4,6 +4,7 @@ import torch
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from torchmetrics import *
+from model import LSTM
 
 
 # Load the networks inputs
@@ -37,30 +38,21 @@ def load_y(y_path):
     # for 0-based indexing
     return y_ -1
 
-def load_data(X_train_path, y_train_path, X_test_path, y_test_path, n_frame = 32, shuffle_flag=True, device='cuda'):
-  X_train = load_X(X_train_path, n_frame)
-  X_test = load_X(X_test_path, n_frame)
-
-  y_train = load_y(y_train_path)
-  y_test = load_y(y_test_path)
+def load_data(X_path, y_path, train_flag = True, n_frame = 32, shuffle_flag=True, device='cuda'):
+  X_= load_X(X_path, n_frame)
+  y_= load_y(y_path)
   
-  if shuffle_flag:
-    X_train, y_train = shuffle(X_train, y_train)
-
-  tensor_X_test = torch.from_numpy(X_test).to(device)
+  if train_flag:
+    if shuffle_flag:
+        X_, y_= shuffle(X_, y_)
+        
+  tensor_X= torch.from_numpy(X_).to(device)
   print('test_data_size:',tensor_X_test.size())
-  tensor_y_test = torch.from_numpy(y_test).to(device)
+  tensor_y= torch.from_numpy(y_).to(device)
   print('test_label_size:',tensor_y_test.size())
-  n_data_size_test = tensor_X_test.size()[0]
+  n_data_size= tensor_X_test.size()[0]
   print('n_data_size_test:',n_data_size_test)
-
-  tensor_X_train = torch.from_numpy(X_train).to(device)
-  print('train_data_size:',tensor_X_train.size())
-  tensor_y_train = torch.from_numpy(y_train).to(device)
-  print('train_label_size:',tensor_y_train.size())
-  n_data_size_train = tensor_X_train.size()[0]
-  print('n_data_size_train:',n_data_size_train)
-  return tensor_X_train, tensor_y_train, tensor_X_test, tensor_y_test, n_data_size_train, n_data_size_test
+  return tensor_X, tensor_y, n_data_size
 
 def plot_loss_acc(file_path, LABELS):
     with open(f'{file_path}', 'rb') as f:
@@ -121,3 +113,14 @@ def get_output_from_model(model, X, y, device='cuda'):
     category_tensor = torch.squeeze(category_tensor)
     output = model(input_sequence)
     return output, category_tensor
+
+def load_model(file_path, n_joints, n_hidden, n_categories, n_layer, device='cuda'):
+    if file_path == None:
+        rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
+    else:
+        rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
+        model_file_path = args.model
+        rnn.load_state_dict(torch.load(model_file_path))
+        rnn.eval()
+        rnn = rnn.to(device)
+    return rnn

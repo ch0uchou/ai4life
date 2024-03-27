@@ -119,7 +119,7 @@ def reprocess(folder_path, LABELS, current_time):
     return count
 
 
-def train(dataset_folder, LABELS, current_time):
+def get_trainset(dataset_folder, LABELS, current_time):
     print("Training")
     reprocess(dataset_folder, LABELS, current_time)
     file_pathx = f"{current_time}dataX.txt"
@@ -127,8 +127,8 @@ def train(dataset_folder, LABELS, current_time):
     file_path_trainx = f"{current_time}dataX_train.txt"
     file_path_trainy = f"{current_time}dataY_train.txt"
 
-    file_path_testx = f"{current_time}dataX_test.txt"
-    file_path_testy = f"{current_time}dataY_test.txt"
+    file_path_testx = f"{current_time}dataX_valid.txt"
+    file_path_testy = f"{current_time}dataY_valid.txt"
 
     n_steps = 32
     split_ratio = 0.9
@@ -163,12 +163,9 @@ def train(dataset_folder, LABELS, current_time):
     return file_path_trainx, file_path_trainy, file_path_testx, file_path_testy
 
 
-def test(dataset_folder, LABELS, current_time):
+def get_testset(dataset_folder, LABELS, current_time):
     print("Testing")
     reprocess(dataset_folder, LABELS, current_time)
-    file_path_trainx = f"{current_time}data_testX.txt"
-    file_path_trainy = f"{current_time}data_testY.txt"
-
     file_path_testx = f"{current_time}data_testX.txt"
     file_path_testy = f"{current_time}data_testY.txt"
-    return file_path_trainx, file_path_trainy, file_path_testx, file_path_testy
+    return file_path_testx, file_path_testy

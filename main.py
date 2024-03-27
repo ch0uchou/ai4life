@@ -14,7 +14,6 @@ import argparse
 from utils import *
 from yolomodel import *
 from datetime import datetime
-from model import LSTM
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -22,6 +21,7 @@ parser = argparse.ArgumentParser(description='Process some input')
 parser.add_argument('--data', default='data', type=str, help='Dataset path', required=False)   
 parser.add_argument('--train','-train', action='store_true', help='Run a training') 
 parser.add_argument('--test', '-test', action='store_true', help='Run a test') 
+parser.add_argument('--txt', '-txt', action='store_true', help='Run on txt file') 
 parser.add_argument('--model', default=None, type=str, help='Model path', required=False)   
 parser.add_argument('--plot', default=None, type=str, help='npy path to plot loss ', required=False)
 args = parser.parse_args()
@@ -56,45 +56,19 @@ LABELS = [
   "barbell biceps curl"
 ]
 current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
+n_steps = 32 # 32 timesteps per series
+n_categories = len(LABELS)
+label_number = 6
+split_ratio = 0.8
+# Load the networks inputs
+n_hidden = 128
+n_joints = 17*2
+n_categories = 22
+n_layer = 3
 
-if args.plot != None:
-  # plot_loss_acc(args.plot, LABELS)
-  plot_confusion_matrix(args.plot, LABELS)
-else:
-  if args.train:
-    X_train_path, y_train_path, X_test_path, y_test_path = train(dataset_folder, LABELS, current_time)
-  elif args.test:
-    X_train_path, y_train_path, X_test_path, y_test_path = test(dataset_folder, LABELS, current_time)
-  else:
-    X_train_path = "20240326-140332dataX_train.txt"
-    y_train_path = "20240326-140332dataY_train.txt"
-    X_test_path = "20240326-140332dataX_test.txt"
-    y_test_path = "20240326-140332dataY_test.txt"
-
-  n_steps = 32 # 32 timesteps per series
-  n_categories = len(LABELS)
-  label_number = 6
-  split_ratio = 0.8
-  # Load the networks inputs
-
-  tensor_X_train, tensor_y_train, tensor_X_test, tensor_y_test, n_data_size_train, n_data_size_test = load_data(X_train_path, y_train_path, X_test_path, y_test_path, n_steps, shuffle_flag=True)
-  n_hidden = 128
-  n_joints = 17*2
-  n_categories = 22
-  n_layer = 3
-
-  if args.model != None: 
-    rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
-    model_file_path = args.model
-    rnn.load_state_dict(torch.load(model_file_path))
-    rnn.eval()
-    rnn = rnn.to(device)
-  else:
-    rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
-  print("model loaded")
-  
-
-  if args.model == None: 
+def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
+    tensor_X_train, tensor_y_train, n_data_size_train = load_data(X_train_path, y_train_path, n_steps, shuffle_flag=True)
+    tensor_X_val, tensor_y_val, n_data_size_val = load_data(X_val_path, y_val_path, n_steps, shuffle_flag=True, train_flag=False)
     print("start training")
 
     criterion = nn.CrossEntropyLoss()
@@ -143,7 +117,7 @@ else:
         all_losses.append(loss.item())  
       
         #get loss of val set every plot_every iterations
-        output_val, category_tensor_val = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
+        output_val, category_tensor_val = get_output_from_model(rnn, tensor_X_val, tensor_y_val.long())
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
         
@@ -154,19 +128,49 @@ else:
         val_accuracies.append(val_accuracy)
         with open(f'result/{current_time}loss.npy', 'wb') as f:
             np.save(f, all_losses)
-            print("loss saved")
+            # print("loss saved")
             np.save(f, val_losses)
-            print("val loss saved")
+            # print("val loss saved")
             np.save(f, train_accuracies)
-            print("accuracy train saved")
+            # print("accuracy train saved")
             np.save(f, val_accuracies)
-            print("accuracy val saved")
-    print("model saved")
+            # print("accuracy val saved")
+    print("best model saved")
 
+def test(rnn, tensor_X_test, tensor_y_test, n_categories):
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
   print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
   confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
   with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
       np.save(f, confusion)
       print("confusion matrix saved")
+
+if args.plot != None:
+  # plot_loss_acc(args.plot, LABELS)
+  plot_confusion_matrix(args.plot, LABELS)
+elif args.txt:
+  X_train_path = "20240326-140332dataX_train.txt"
+  y_train_path = "20240326-140332dataY_train.txt"
+  X_val_path = "20240326-140332dataX_test.txt"
+  y_val_path = "20240326-140332dataY_test.txt"
+  X_test_path = "20240326-140332dataX_test.txt"
+  y_test_path = "20240326-140332dataY_test.txt"
+else:
+  if args.train:
+    X_train_path, y_train_path, X_val_path, y_val_path = get_trainset(dataset_folder, LABELS, current_time)
+  elif args.test:
+    X_test_path, y_test_path = get_testset(dataset_folder, LABELS, current_time)
+    if args.model == None:
+      print("Please provide a model path")
+      exit()
+
+rnn = load_model(args.model, n_joints, n_hidden, n_categories, n_layer)
+print("model loaded")
+
+if args.model == None: 
+  trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps)
+
+else:
+  tensor_X_test, tensor_y_test, n_data_size_test = load_data(X_test_path, y_test_path, n_steps, shuffle_flag=False, train_flag=False)
+  test(rnn, tensor_X_test, tensor_y_test, n_categories)
  
