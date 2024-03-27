@@ -14,6 +14,8 @@ import argparse
 from utils import *
 from yolomodel import *
 from datetime import datetime
+import copy
+
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -119,7 +121,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         train_accuracies.append(accuracy(output, category_tensor, n_categories))
         val_accuracy = accuracy(output_val, category_tensor_val, n_categories)
         if (val_accuracy > (max(val_accuracies) if len(val_accuracies) > 0 else 0)):
-          best_model = rnn
+          best_model = copy.deepcopy(rnn)
         val_accuracies.append(val_accuracy)
         # Print iter number, loss, name and guess
         if iter % print_every == 0: 
