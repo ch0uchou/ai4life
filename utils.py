@@ -106,6 +106,10 @@ def confusion_matrix(pred, target, n_categories, device='cuda'):
     confmat = ConfusionMatrix(task="multiclass", num_classes=n_categories, normalize='all').to(device)
     return confmat(pred, target).cpu().numpy()
 
+def f1_score(pred, target, n_categories, device='cuda'):
+    f1 = F1Score(task="multiclass",num_classes=n_categories).to(device)
+    return f1(torch.reshape(pred.topk(1)[1],(-1,)), target).cpu()
+
 def get_output_from_model(model, X, y, device='cuda'):
     category_tensor, input_sequence = y.long(), X
     input_sequence = input_sequence.to(device)
