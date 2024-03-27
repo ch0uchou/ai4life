@@ -67,8 +67,8 @@ n_categories = 22
 n_layer = 3
 
 def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
-    tensor_X_train, tensor_y_train, n_data_size_train = load_data(X_train_path, y_train_path, n_steps, shuffle_flag=True)
-    tensor_X_val, tensor_y_val, n_data_size_val = load_data(X_val_path, y_val_path, n_steps, shuffle_flag=True, train_flag=False)
+    tensor_X_train, tensor_y_train, n_data_size_train = load_data(X_train_path, y_train_path, n_frame=n_steps, shuffle_flag=True)
+    tensor_X_val, tensor_y_val, n_data_size_val = load_data(X_val_path, y_val_path, n_frame=n_steps, shuffle_flag=True, train_flag=False)
     print("start training")
 
     criterion = nn.CrossEntropyLoss()
