@@ -131,7 +131,7 @@ def get_trainset(dataset_folder, LABELS, current_time):
     file_path_testy = f"{current_time}dataY_valid.txt"
 
     n_steps = 32
-    split_ratio = 0.9
+    split_ratio = 0.8
     read_filesx = open(file_pathx, "r").readlines()
     print(len(read_filesx))
     read_filesy = open(file_pathy, "r").readlines()
@@ -166,6 +166,6 @@ def get_trainset(dataset_folder, LABELS, current_time):
 def get_testset(dataset_folder, LABELS, current_time):
     print("Testing")
     reprocess(dataset_folder, LABELS, current_time)
-    file_path_testx = f"{current_time}data_testX.txt"
-    file_path_testy = f"{current_time}data_testY.txt"
+    file_path_testx = f"{current_time}dataX.txt"
+    file_path_testy = f"{current_time}dataY.txt"
     return file_path_testx, file_path_testy
