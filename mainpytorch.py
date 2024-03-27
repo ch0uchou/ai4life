@@ -11,10 +11,9 @@ import time
 import math
 import matplotlib.ticker as ticker
 import argparse
-from utils import load_data, plot
+from utils import load_data, plot, accuracy, confusion_matrix
 from yolomodel import *
 from datetime import datetime
-from torchmetrics import *
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -26,6 +25,7 @@ parser.add_argument('--model', default=None, type=str, help='Model path', requir
 parser.add_argument('--output', default=None, type=str, help='npy path to plot loss ', required=False)
 args = parser.parse_args()
 dataset_folder = args.data
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 LABELS = [
   "russian twist",
@@ -116,25 +116,6 @@ else:
       # output = self.fc(lstm_out)
       # return output
 
-
-  def randomTrainingExampleBatch(batch_size,flag,num=-1):
-    if flag == 'train':
-      X = tensor_X_train
-      y = tensor_y_train
-      data_size = n_data_size_train
-    elif flag == 'test':
-      X = tensor_X_test
-      y = tensor_y_test
-      data_size = n_data_size_test
-    if num == -1:
-      ran_num = random.randint(0,data_size-batch_size)
-    else:
-      ran_num = num
-    pose_sequence_tensor = X[ran_num:(ran_num+batch_size)]
-    pose_sequence_tensor = pose_sequence_tensor
-    category_tensor = y[ran_num:ran_num+batch_size,:]
-    return category_tensor.long(),pose_sequence_tensor
-
   n_hidden = 128
   n_joints = 17*2
   n_categories = 22
@@ -145,21 +126,11 @@ else:
     model_file_path = args.model
     rnn.load_state_dict(torch.load(model_file_path))
     rnn.eval()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     rnn = rnn.to(device)
   else:
     rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
   print("model loaded")
-
-  def categoryFromOutput(output):
-    top_n, top_i = output.topk(1)
-    category_i = top_i[0].item()
-    return LABELS[category_i], category_i
   
-  def accuracy(pred, target):
-    accuracy_ = Accuracy(task = 'multiclass', num_classes = n_categories).to(device)
-    return accuracy_(torch.reshape(pred.topk(1)[1],(-1,)), target).cpu()
-
 
   if args.model == None: 
     print("start training")
@@ -169,7 +140,7 @@ else:
     optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
     #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-    n_iters = 200000
+    n_iters = 2000
     #n_iters = 60000
     print_every = 1000
     plot_every = 100
@@ -208,7 +179,7 @@ else:
 
         # Print iter number, loss, name and guess
         if iter % print_every == 0:
-            guess, guess_i = categoryFromOutput(output)
+            guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
             correct = '✓' if guess == category else '✗ (%s)' % category
             print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, guess, correct))
 
@@ -230,35 +201,7 @@ else:
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
     print("Model saved")
 
-  print(f"test accuracy: {accuracy('test')}")
-  print(f"train accuracy: {accuracy('train')}")
-  # print(f'loss: {all_losses}')
-  # plt.figure()
-  # plt.plot(all_losses)
-
-  # Keep track of correct guesses in a confusion matrix
-  confusion = torch.zeros(n_categories, n_categories)
-  n_confusion = n_data_size_test
-  precision = np.zeros(n_categories)
-  recall = np.zeros(n_categories)
-  f1 = np.zeros(n_categories)
-
-  # Go through a bunch of examples and record which are correctly guessed
-  for i in range(n_confusion):
-      category_tensor, inputs = randomTrainingExampleBatch(1,'test',i)
-      # print(f"input: {inputs}")
-      category = LABELS[int(category_tensor[0])]
-      inputs = inputs.to(device)
-      output = rnn(inputs)
-      guess, guess_i = categoryFromOutput(output)
-      category_i = LABELS.index(category)
-      confusion[category_i][guess_i] += 1
-
-  # Normalize by dividing every row by its sum
-  for i in range(n_categories):
-      confusion[i] = confusion[i] / confusion[i].sum()
-
-  # Print confusion matrix
+  # confusion = confusion_matrix()
 
   with open(f'result/{current_time}loss_conf.npy', 'wb') as f:
     np.save(f, all_losses)
@@ -269,38 +212,5 @@ else:
     print("accuracy train saved")
     np.save(f, accuracy_val)
     print("accuracy val saved")
-    np.save(f, confusion.numpy())
-    print("confusion matrix saved")
-
-  # print(confusion.numpy())
-  # fig = plt.figure()
-  # ax = fig.add_subplot(111)
-  # cax = ax.matshow(confusion.numpy())
-  # fig.colorbar(cax)
-
-  # # Set up axes
-  # ax.set_xticklabels([''] + LABELS, rotation=90)
-  # ax.set_yticklabels([''] + LABELS)
-
-  # # Force label at every tick
-  # ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
-  # ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
-
-  # # sphinx_gallery_thumbnail_number = 2
-  # plt.show()
-
-  for i in range(n_categories):
-      true_positives = confusion[i, i]
-      false_positives = confusion[:, i].sum() - true_positives
-      false_negatives = confusion[i, :].sum() - true_positives
-
-      # Calculate precision, recall, and F1 for the current category
-      precision[i] = true_positives / (true_positives + false_positives) if (true_positives + false_positives) != 0 else 0
-      recall[i] = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) != 0 else 0
-
-      # Calculate F1 score
-      f1[i] = 2 * (precision[i] * recall[i]) / (precision[i] + recall[i]) if (precision[i] + recall[i]) != 0 else 0
-
-  # Print or use the average F1 score
-  average_f1 = np.mean(f1)
-  print(f"Average F1 Score: {average_f1}")
+    # np.save(f, confusion.numpy())
+    # print("confusion matrix saved")
