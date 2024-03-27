@@ -160,7 +160,7 @@ else:
 
 
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
-  print(f'test accuracy: {accuracy(output_val, category_tensor_test, n_categories).item()}')
+  print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
   confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
   with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
       np.save(f, confusion)
