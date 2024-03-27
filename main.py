@@ -152,16 +152,16 @@ else:
         if (val_accuracy > (max(val_accuracies) if len(val_accuracies) > 0 else 0)):
           torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
         val_accuracies.append(val_accuracy)
+        with open(f'result/{current_time}loss.npy', 'wb') as f:
+            np.save(f, all_losses)
+            print("loss saved")
+            np.save(f, val_losses)
+            print("val loss saved")
+            np.save(f, train_accuracies)
+            print("accuracy train saved")
+            np.save(f, val_accuracies)
+            print("accuracy val saved")
     print("model saved")
-    with open(f'result/{current_time}loss.npy', 'wb') as f:
-      np.save(f, all_losses)
-      print("loss saved")
-      np.save(f, val_losses)
-      print("val loss saved")
-      np.save(f, train_accuracies)
-      print("accuracy train saved")
-      np.save(f, val_accuracies)
-      print("accuracy val saved")
 
   output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
   print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
