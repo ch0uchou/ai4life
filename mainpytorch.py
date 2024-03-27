@@ -154,7 +154,6 @@ else:
     category_i = top_i[0].item()
     return LABELS[category_i], category_i
   
-  print("start training")
   def accuracy(flag):
       if flag == 'train':
           n = n_data_size_train
@@ -174,7 +173,6 @@ else:
               if category_i == guess_i:
                   right+=1
       return right/n
-  print("start training")
 
   if args.model == None: 
     print("start training")
@@ -236,12 +234,15 @@ else:
         input_sequence_val = input_sequence_val.to(device)
         category_tensor_val = category_tensor_val.to(device)
         category_tensor_val = torch.squeeze(category_tensor_val)
-        output_val = rnn(input_sequence_val)
+        output_val = rnn(input_sequence_val)        
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
-
-        accuracy_train.append(accuracy('train'))
-        accuracy_val.append(accuracy('test'))
+        
+        print(input_sequence_val.size())
+        print(output_val)
+        print(categoryFromOutput(output_val))
+        print(category_tensor_val)
+        break
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
     print("Model saved")
 
