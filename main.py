@@ -142,6 +142,7 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories):
   print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
   confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
   f1 = f1_score(output_test, category_tensor_test, n_categories)
+  print(f'f1 score: {f1}')
   with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
       np.save(f, confusion)
       print("confusion matrix saved")
