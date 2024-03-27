@@ -11,9 +11,10 @@ import time
 import math
 import matplotlib.ticker as ticker
 import argparse
-from utils import load_data, plot, accuracy, confusion_matrix
+from utils import load_data, plot, accuracy, confusion_matrix, get_output_from_model
 from yolomodel import *
 from datetime import datetime
+from model import LSTM
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -73,49 +74,6 @@ else:
   # Load the networks inputs
 
   tensor_X_train, tensor_y_train, tensor_X_test, tensor_y_test, n_data_size_train, n_data_size_test = load_data(X_train_path, y_train_path, X_test_path, y_test_path, n_steps, shuffle_flag=True)
-
-  class LSTM(nn.Module):
-    def __init__(self,input_dim,hidden_dim,output_dim,layer_num):
-      super(LSTM,self).__init__()
-      self.hidden_dim = hidden_dim
-      self.output_dim = output_dim
-      self.lstm = torch.nn.LSTM(input_dim,hidden_dim,layer_num,batch_first=True)
-      self.fc = torch.nn.Linear(hidden_dim,output_dim)
-      self.bn = nn.BatchNorm1d(32)
-
-      # self.conv1d = nn.Conv1d(in_channels=input_dim, out_channels=64, kernel_size=3)
-      # self.relu = nn.ReLU()
-      # self.lstm1 = nn.LSTM(input_size=64, hidden_size=hidden_dim, num_layers=layer_num, batch_first=True)
-      # self.lstm2 = nn.LSTM(input_size=hidden_dim, hidden_size=hidden_dim, num_layers=layer_num, batch_first=True)
-      # self.fc = nn.Linear(hidden_dim, n_categories)
-
-
-    def forward(self,inputs):
-      x = self.bn(inputs)
-      lstm_out,_ = self.lstm(x)
-      out = self.fc(lstm_out[:,-1,:])
-      return out
-      # x = inputs.permute(0, 2, 1)  # Reshape to (batch_size, 34, 32) for 1D conv
-      # x = self.conv1d(x)
-      # x = self.relu(x)
-      
-      # # Reshape back to (batch_size, 32, 64) for LSTM
-      # x = x.permute(0, 2, 1)
-      # # LSTM expects input of shape (batch_size, seq_len, input_size)
-      
-      # # First LSTM layer
-      # lstm_out1, _ = self.lstm1(x)
-      
-      # # Second LSTM layer
-      # lstm_out2, _ = self.lstm2(lstm_out1)
-      
-      # # Get output from the last time step
-      # lstm_out = lstm_out2[:, -1, :]
-      
-      # # Fully connected layer
-      # output = self.fc(lstm_out)
-      # return output
-
   n_hidden = 128
   n_joints = 17*2
   n_categories = 22
@@ -162,12 +120,7 @@ else:
     start = time.time()
 
     for iter in range(1, n_iters + 1):
-        category_tensor, input_sequence = tensor_y_train.long(), tensor_X_train
-        input_sequence = input_sequence.to(device)
-        category_tensor = category_tensor.to(device)
-        category_tensor = torch.squeeze(category_tensor)
-        output = rnn(input_sequence)
-
+        output, category_tensor = get_output_from_model(rnn, tensor_X_train, tensor_y_train.long())
         optimizer.zero_grad()
         loss = criterion(output, category_tensor)
         loss.backward()
@@ -188,11 +141,7 @@ else:
           all_losses.append(current_loss / plot_every)
           current_loss = 0    
           
-        category_tensor_val, input_sequence_val = tensor_y_test.long(), tensor_X_test
-        input_sequence_val = input_sequence_val.to(device)
-        category_tensor_val = category_tensor_val.to(device)
-        category_tensor_val = torch.squeeze(category_tensor_val)
-        output_val = rnn(input_sequence_val)        
+        output_val, category_tensor_val = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
         loss_val = criterion(output_val, category_tensor_val)
         val_losses.append(loss_val.item())
         
@@ -200,7 +149,7 @@ else:
         accuracy_val.append(accuracy(output_val, category_tensor_val, n_categories))
     torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
     print("Model saved")
-    with open(f'result/{current_time}loss_conf.npy', 'wb') as f:
+    with open(f'result/{current_time}loss.npy', 'wb') as f:
       np.save(f, all_losses)
       print("loss saved")
       np.save(f, val_losses)
@@ -209,10 +158,12 @@ else:
       print("accuracy train saved")
       np.save(f, accuracy_val)
       print("accuracy val saved")
-      # np.save(f, confusion.numpy())
-      # print("confusion matrix saved")
 
 
-  # confusion = confusion_matrix()
-
+  output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
+  print(accuracy(output_val, category_tensor_test, n_categories))
+  confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
+  with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
+      np.save(f, confusion)
+      print("confusion matrix saved")
  

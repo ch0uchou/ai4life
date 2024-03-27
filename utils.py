@@ -106,11 +106,8 @@ def accuracy(pred, target, n_categories, device='cuda'):
     return accuracy_(torch.reshape(pred.topk(1)[1],(-1,)), target).cpu()
 
 def confusion_matrix(pred, target, n_categories, device='cuda'):
-    confmat = ConfusionMatrix(task="multiclass", num_classes=n_categories).to(device)
-    confusion = confmat()
-    for i in range(n_categories):
-        confusion[i] = confusion[i] / confusion[i].sum()
-    return confusion
+    confmat = ConfusionMatrix(task="multiclass", num_classes=n_categories, normalize='all').to(device)
+    return confmat(pred, target).cpu().numpy()
 
 def get_output_from_model(model, X, y, device='cuda'):
     category_tensor, input_sequence = y.long(), X
