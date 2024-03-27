@@ -47,11 +47,11 @@ def load_data(X_path, y_path, train_flag = True, n_frame = 32, shuffle_flag=True
         X_, y_= shuffle(X_, y_)
         
   tensor_X= torch.from_numpy(X_).to(device)
-  print('test_data_size:',tensor_X.size())
+  print('data_size:',tensor_X.size())
   tensor_y= torch.from_numpy(y_).to(device)
-  print('test_label_size:',tensor_y.size())
+  print('label_size:',tensor_y.size())
   n_data_size= tensor_X.size()[0]
-  print('n_data_size_test:',n_data_size)
+  print('n_data_size:',n_data_size)
   return tensor_X, tensor_y, n_data_size
 
 def plot_loss_acc(file_path, LABELS):
