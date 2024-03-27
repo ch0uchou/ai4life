@@ -124,7 +124,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         if iter % print_every == 0: 
             guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
             correct = '✓' if guess == category else '✗ (%s)' % category
-            print('%d %d%% (%s) %.4f  / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, val_accuracy, guess, correct))
+            print('%d %d%% (%s) loss: %.4f val_loss: %.4f / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, val_accuracy, guess, correct))
     print("best model saved")
     with open(f'result/{current_time}loss.npy', 'wb') as f:
       np.save(f, all_losses)
