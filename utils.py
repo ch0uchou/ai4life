@@ -66,7 +66,7 @@ def plot(file_path, LABELS):
         train_losses = np.load(f)
         val_losses = np.load(f)
         confusion = np.load(f)
-    
+    print(np.argmin(val_losses))
     plt.figure()
     plt.subplot(2, 1, 1)
     plt.plot(train_losses)

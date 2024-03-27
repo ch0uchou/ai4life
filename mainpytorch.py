@@ -160,7 +160,7 @@ else:
     optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
     #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-    n_iters = 100000
+    n_iters = 22111
     #n_iters = 60000
     print_every = 1000
     plot_every = 1000
@@ -206,7 +206,7 @@ else:
           all_losses.append(current_loss / plot_every)
           current_loss = 0    
           
-        category_tensor_val, input_sequence_val = randomTrainingExampleBatch(n_data_size_test,'test',0)
+        category_tensor_val, input_sequence_val = tensor_y_test.long(), tensor_X_test
         input_sequence_val = input_sequence_val.to(device)
         category_tensor_val = category_tensor_val.to(device)
         category_tensor_val = torch.squeeze(category_tensor_val)
