@@ -39,7 +39,9 @@ class TransformerModel(nn.Module):
         
     def forward(self, x):
         keypoints_embedded = self.keypoints_embedding(x)
-        frames_embedded = self.frames_embedding(torch.arange(self.num_frames).unsqueeze(0).repeat(x.size(0), 1).to(self.device))
+        # frames_embedded = self.frames_embedding(torch.arange(self.num_frames).unsqueeze(0).repeat(x.size(0), 1).to(self.device))
+        frames_embedded = self.frames_embedding(torch.arange(self.num_frames, dtype=torch.float).unsqueeze(0).repeat(x.size(0), 1).to(self.device))
+
         embedded = keypoints_embedded + self.positional_encoding.unsqueeze(0)
         embedded += frames_embedded.unsqueeze(1)
         
