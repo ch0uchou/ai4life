@@ -35,11 +35,10 @@ class TransformerModel(nn.Module):
         encoder_layer = nn.TransformerEncoderLayer(d_model=embedding_size, nhead=num_heads, dim_feedforward=hidden_size, dropout=dropout)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         
-        self.fc = nn.Linear(embedding_size * num_frames * input_dim, num_activities)
+        self.fc = nn.Linear(embedding_size, num_activities)
         
     def forward(self, x):
         keypoints_embedded = self.keypoints_embedding(x)
-        # frames_embedded = self.frames_embedding(torch.arange(self.num_frames).unsqueeze(0).repeat(x.size(0), 1).to(self.device))
         frames_embedded = self.frames_embedding(torch.arange(self.num_frames, dtype=torch.float).unsqueeze(0).repeat(x.size(0), 1).to(self.device))
 
         embedded = keypoints_embedded + self.positional_encoding.unsqueeze(0)
@@ -50,7 +49,7 @@ class TransformerModel(nn.Module):
         output = output.permute(1, 0, 2)  # (batch_size, num_frames, embedding_size)
         
         # Perform global pooling or aggregation
-        output = torch.flatten(output, start_dim=1)
+        output = torch.mean(output, dim=1)  # Global average pooling
         
         output = self.fc(output)
         
