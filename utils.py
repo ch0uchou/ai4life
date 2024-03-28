@@ -4,7 +4,7 @@ import torch
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from torchmetrics import *
-from model import LSTM
+from model import LSTM, TransformerModel
 
 
 # Load the networks inputs
@@ -111,9 +111,11 @@ def get_output_from_model(model, X, y, device='cuda'):
 
 def load_model(file_path, n_joints, n_hidden, n_categories, n_layer, device='cuda'):
     if file_path == None:
-        rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
+        # rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
+        rnn = TransformerModel().to(device)
     else:
-        rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
+        # rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
+        rnn = TransformerModel()
         model_file_path = file_path
         rnn.load_state_dict(torch.load(model_file_path))
         rnn.eval()

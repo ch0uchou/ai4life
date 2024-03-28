@@ -81,7 +81,6 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
     n_iters = 200000
     #n_iters = 60000
     print_every = 1000
-    batch_size = 128
 
     # Keep track of losses for plotting
     current_loss = 0
@@ -145,13 +144,13 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories):
       print("f1 score saved")
 
 if args.plot != None:
-  # plot_loss_acc(args.plot, LABELS)
-  plot_confusion_matrix(args.plot, LABELS)
+  plot_loss_acc(args.plot, LABELS)
+  # plot_confusion_matrix(args.plot, LABELS)
 elif args.txt:
-  X_train_path = "20240326-140332dataX_train.txt"
-  y_train_path = "20240326-140332dataY_train.txt"
-  X_val_path = "20240326-140332dataX_test.txt"
-  y_val_path = "20240326-140332dataY_test.txt"
+  X_train_path = "20240328-130259dataX_train.txt"
+  y_train_path = "20240328-130259dataY_train.txt"
+  X_val_path = "20240328-130259dataX_valid.txt"
+  y_val_path = "20240328-130259dataY_valid.txt"
   X_test_path = "20240327-194407dataX.txt"
   y_test_path = "20240327-194407dataY.txt"
 else:
