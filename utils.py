@@ -113,6 +113,7 @@ def load_model(file_path, n_joints, n_hidden, n_categories, n_layer, device='cud
     if file_path == None:
         # rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
         rnn = TransformerModel().to(device)
+        print(rnn)
     else:
         # rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
         rnn = TransformerModel()
