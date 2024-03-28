@@ -19,13 +19,14 @@ class LSTM(nn.Module):
 
 
 class TransformerModel(nn.Module):
-    def __init__(self, num_activities=22, input_dim=17*2, num_frames=32, embedding_size=256, num_heads=8, hidden_size=512, num_layers=6, dropout=0.1):
+    def __init__(self, num_activities=22, input_dim=17*2, num_frames=32, embedding_size=256, num_heads=8, hidden_size=512, num_layers=6, dropout=0.1, device='cuda'):
         super(TransformerModel, self).__init__()
         
         self.num_activities = num_activities
         self.input_dim = input_dim
         self.num_frames = num_frames
         self.embedding_size = embedding_size
+        self.device = device
         
         self.positional_encoding = nn.Parameter(torch.randn(num_frames, embedding_size))
         self.keypoints_embedding = nn.Linear(input_dim, embedding_size)
@@ -38,7 +39,7 @@ class TransformerModel(nn.Module):
         
     def forward(self, x):
         keypoints_embedded = self.keypoints_embedding(x)
-        frames_embedded = self.frames_embedding(torch.arange(self.num_frames).unsqueeze(0).repeat(x.size(0), 1))
+        frames_embedded = self.frames_embedding(torch.arange(self.num_frames).unsqueeze(0).repeat(x.size(0), 1).to(self.device))
         embedded = keypoints_embedded + self.positional_encoding.unsqueeze(0)
         embedded += frames_embedded.unsqueeze(1)
         
