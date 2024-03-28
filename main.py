@@ -80,10 +80,12 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
 
     n_iters = 200000
     #n_iters = 60000
-    print_every = 1000
+    print_every = 100
+    plot_every = 100
 
     # Keep track of losses for plotting
     current_loss = 0
+    current_loss_val = 0
     all_losses = []
     val_losses = []
     min_val_loss = 1000000
@@ -106,18 +108,21 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         current_loss += loss.item()
 
         category = LABELS[int(category_tensor[0])]
-
-        #get loss of train set every plot_every iterations
-        all_losses.append(loss.item())  
       
         #get loss of val set every plot_every iterations
         output_val, category_tensor_val = get_output_from_model(rnn, tensor_X_val, tensor_y_val.long())
         loss_val = criterion(output_val, category_tensor_val)
-        val_losses.append(loss_val.item())
+        current_loss_val += loss_val.item() 
         
-        if (loss_val <= min_val_loss):
-          torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
-          min_val_loss = loss_val
+        #plot loss
+        if iter % plot_every == 0:
+            all_losses.append(current_loss / plot_every)
+            current_loss = 0
+            val_losses.append(current_loss_val / plot_every)
+            if ((current_loss_val / plot_every) <= min_val_loss):
+              torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
+              min_val_loss = current_loss_val / plot_every
+            
         # Print iter number, loss, name and guess
         if iter % print_every == 0: 
             guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
