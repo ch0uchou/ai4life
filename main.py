@@ -81,7 +81,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
     n_iters = 500000
     #n_iters = 60000
     print_every = 1000
-    plot_every = 100
+    plot_every = 10
 
     # Keep track of losses for plotting
     current_loss = 0
