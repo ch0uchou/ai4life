@@ -4,7 +4,7 @@ import torch
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from torchmetrics import *
-from model import LSTM, TransformerModel
+from model import *
 
 
 # Load the networks inputs
