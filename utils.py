@@ -59,6 +59,7 @@ def plot_loss_acc(file_path, LABELS):
         train_losses = np.load(f)
         val_losses = np.load(f)
     print(np.argmin(val_losses))
+    print(val_losses[np.argmin(val_losses)])
     plt.figure()
     plt.subplot(2, 1, 1)
     plt.plot(train_losses)
@@ -117,11 +118,11 @@ def load_model(file_path, n_joints, n_hidden, n_categories, n_layer, device='cud
     num_heads = 8  # Number of attention heads
     dropout = 0.1  # Dropout probability
     if file_path == None:
-        # rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
-        rnn = TransformerModel(input_dim, hidden_dim, output_dim, num_layers, num_heads, dropout).to(device)
+        rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
+        # rnn = TransformerModel(input_dim, hidden_dim, output_dim, num_layers, num_heads, dropout).to(device)
     else:
-        # rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
-        rnn = TransformerModel(input_dim, hidden_dim, output_dim, num_layers, num_heads, dropout)
+        rnn = LSTM(n_joints, n_hidden, n_categories, n_layer)
+        # rnn = TransformerModel(input_dim, hidden_dim, output_dim, num_layers, num_heads, dropout)
         model_file_path = file_path
         rnn.load_state_dict(torch.load(model_file_path))
         rnn.eval()
