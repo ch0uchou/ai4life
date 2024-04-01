@@ -140,7 +140,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
 def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   if testfold == None:
     output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
-    guess = torch.reshape(output.topk(1)[1],(-1,))
+    guess = torch.reshape(output_test.topk(1)[1],(-1,))
     true = torch.reshape(category_tensor_test,(-1,))
     print(f'Guess: {guess}')
     print(f'True: {true}')
@@ -156,6 +156,8 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
     tensor_X_test = tensor_X_test.to(device)
     output = rnn(tensor_X_test)
     print(f'{output.topk(1)[1]}')
+    result = [[output[i], tensor_y_test[i]] for i in range(len(output))]
+
     # print(f'{tensor_y_test}')
 
 if args.plot != None:
