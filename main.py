@@ -163,7 +163,7 @@ if args.plot != None:
   # plot_confusion_matrix(args.plot, LABELS)
 elif args.txt:
   X_train_path = "data/dataX_train.txt"
-  y_train_path = "data/dataX_train.txt"
+  y_train_path = "data/dataY_train.txt"
   X_val_path = "data/dataX_valid.txt"
   y_val_path = "data/dataY_valid.txt"
   X_test_path = "data/dataX_test.txt"
