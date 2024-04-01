@@ -152,9 +152,9 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   else:
     tensor_X_test = tensor_X_test.to(device)
     output = rnn(tensor_X_test)
-    # guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
-    print(f'{output}')
-    print(f'{tensor_y_test}')
+    predictions = LABELS[torch.argmax(output, dim=1)]
+    print(f'Predictions: {predictions}')
+    print(f'Ground Truth: {tensor_y_test}')
 
 if args.plot != None:
   plot_loss_acc(args.plot, LABELS)
