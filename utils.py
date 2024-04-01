@@ -111,12 +111,6 @@ def get_output_from_model(model, X, y, device='cuda'):
     return output, category_tensor
 
 def load_model(file_path, n_joints, n_hidden, n_categories, n_layer, device='cuda'):
-    input_dim = 17 * 2  # Number of coordinates for each keypoint
-    hidden_dim = 256  # Hidden dimension of the Transformer model
-    output_dim = 22  # Output dimension (e.g., number of classes)
-    num_layers = 6  # Number of Transformer encoder layers
-    num_heads = 8  # Number of attention heads
-    dropout = 0.1  # Dropout probability
     if file_path == None:
         rnn = LSTM(n_joints,n_hidden,n_categories,n_layer).to(device)
     else:

@@ -34,30 +34,30 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if not os.path.isdir("result"):
     os.makedirs("result")
   
-LABELS = [
-  "russian twist",
-  "tricep dips",
-  "t bar row",
-  "squat",
-  "shoulder press",
-  "romanian deadlift",
-  "push-up",
-  "plank",
-  "leg extension",
-  "leg raises",
-  "lat pulldown",
-  "incline bench press",
-  "tricep pushdown",
-  "pull up",
-  "lateral raise",
-  "hammer curl",
-  "decline bench press",
-  "hip thrust",
-  "bench press",
-  "chest fly machine",
-  "deadlift",
-  "barbell biceps curl"
-]
+LABELS = {
+  "russian twist": 0,
+  "tricep dips": 1,
+  "t bar row": 2,
+  "squat": 3,
+  "shoulder press": 4,
+  "romanian deadlift": 5,
+  "push-up": 6,
+  "plank": 7,
+  "leg extension": 8,
+  "leg raises": 9,
+  "lat pulldown": 10,
+  "incline bench press": 11,
+  "tricep pushdown": 12,
+  "pull up": 13,
+  "lateral raise": 14,
+  "hammer curl": 15,
+  "decline bench press": 16,
+  "hip thrust": 17,
+  "bench press": 18,
+  "chest fly machine": 19,
+  "deadlift": 20,
+  "barbell biceps curl": 21
+}
 current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
 n_steps = 32 # 32 timesteps per series
 n_categories = len(LABELS)
@@ -140,15 +140,18 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
 def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   if testfold == None:
     output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
-    print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
+    guess = LABELS[torch.reshape(output_test.topk(1)[1],(-1,))[0].item()]
+    true = LABELS[torch.reshape(category_tensor_test,(-1,))[0].item()]
+    print(f'Guess: {guess}')
+    print(f'True: {true}')
     confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
     f1 = f1_score(output_test, category_tensor_test, n_categories)
     print(f'f1 score: {f1}')
     with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
-        np.save(f, confusion)
-        print("confusion matrix saved")
-        np.save(f, f1.numpy())
-        print("f1 score saved")
+      np.save(f, confusion)
+      print("confusion matrix saved")
+      np.save(f, f1.numpy())
+      print("f1 score saved")
   else:
     tensor_X_test = tensor_X_test.to(device)
     output = rnn(tensor_X_test)
@@ -163,8 +166,8 @@ elif args.txt:
   y_train_path = "20240328-130259dataY_train.txt"
   X_val_path = "20240328-130259dataX_valid.txt"
   y_val_path = "20240328-130259dataY_valid.txt"
-  X_test_path = "20240327-194407dataX.txt"
-  y_test_path = "20240327-194407dataY.txt"
+  X_test_path = "20240401-203835dataX.txt"
+  y_test_path = "20240401-203835dataY.txt"
 else:
   if args.train:
     X_train_path, y_train_path, X_val_path, y_val_path = get_trainset(dataset_folder, LABELS, current_time)
