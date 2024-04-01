@@ -22,7 +22,8 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 parser = argparse.ArgumentParser(description='Process some input')
 parser.add_argument('--data', default='data', type=str, help='Dataset path', required=False)   
 parser.add_argument('--train','-train', action='store_true', help='Run a training') 
-parser.add_argument('--test', '-test', action='store_true', help='Run a test') 
+parser.add_argument('--test', '-test', action='store_true', help='Run a test')
+parser.add_argument('--testfold', default=None, type=str, help='Test folder path', required=False)   
 parser.add_argument('--txt', '-txt', action='store_true', help='Run on txt file') 
 parser.add_argument('--model', default=None, type=str, help='Model path', required=False)   
 parser.add_argument('--plot', default=None, type=str, help='npy path to plot loss ', required=False)
@@ -136,17 +137,23 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
       print("val loss saved")
 
 
-def test(rnn, tensor_X_test, tensor_y_test, n_categories):
-  output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
-  print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
-  confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
-  f1 = f1_score(output_test, category_tensor_test, n_categories)
-  print(f'f1 score: {f1}')
-  with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
-      np.save(f, confusion)
-      print("confusion matrix saved")
-      np.save(f, f1.numpy())
-      print("f1 score saved")
+def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
+  if testfold == None:
+    output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
+    print(f'test accuracy: {accuracy(output_test, category_tensor_test, n_categories).item()}')
+    confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
+    f1 = f1_score(output_test, category_tensor_test, n_categories)
+    print(f'f1 score: {f1}')
+    with open(f'result/{current_time}confusion_matrix.npy', 'wb') as f:
+        np.save(f, confusion)
+        print("confusion matrix saved")
+        np.save(f, f1.numpy())
+        print("f1 score saved")
+  else:
+    tensor_X_test = tensor_X_test.to(device)
+    output = rnn(tensor_X_test)
+    guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
+    print(f'{guess}')
 
 if args.plot != None:
   plot_loss_acc(args.plot, LABELS)
@@ -162,7 +169,7 @@ else:
   if args.train:
     X_train_path, y_train_path, X_val_path, y_val_path = get_trainset(dataset_folder, LABELS, current_time)
   elif args.test:
-    X_test_path, y_test_path = get_testset(dataset_folder, LABELS, current_time)
+    X_test_path, y_test_path = get_testset(dataset_folder, LABELS, current_time, args.testfold)
 
 
 if args.train: 
@@ -176,6 +183,18 @@ if args.test:
       exit()
   rnn = load_model(args.model, n_joints, n_hidden, n_categories, n_layer)
   print("model loaded")
-  tensor_X_test, tensor_y_test, n_data_size_test = load_data(X_test_path, y_test_path, n_frame=n_steps, shuffle_flag=False, train_flag=False)
-  test(rnn, tensor_X_test, tensor_y_test, n_categories)
- 
+  if args.testfold == None:
+    tensor_X_test, tensor_y_test, n_data_size_test = load_data(X_test_path, y_test_path, n_frame=n_steps, shuffle_flag=False, train_flag=False)
+    test(rnn, tensor_X_test, tensor_y_test, n_categories)
+  else:
+    tensor_X_test = load_X(X_test_path, n_steps=n_steps)
+    file = open(y_test_path, 'r')
+    tensor_y_test = np.array(
+      [elem for elem in [
+        row.replace('  ', ' ').strip().split(' ') for row in file
+      ]],
+      dtype=np.str
+    )
+    file.close()
+    tensor_y_test = torch.from_numpy(tensor_y_test).to(device)
+    test(rnn, tensor_X_test, tensor_y_test, n_categories, args.testfold)

@@ -163,9 +163,16 @@ def get_trainset(dataset_folder, LABELS, current_time):
     return file_path_trainx, file_path_trainy, file_path_testx, file_path_testy
 
 
-def get_testset(dataset_folder, LABELS, current_time):
+def get_testset(dataset_folder, LABELS, current_time, testfold):
     print("Testing")
-    reprocess(dataset_folder, LABELS, current_time)
+    if testfold == None:
+        reprocess(dataset_folder, LABELS, current_time)
+    else:
+        testfold_path = testfold + "/"
+        video_files = glob.glob(os.path.join(testfold_path, "*.mp4"))
+        for video_file in video_files:
+            get_video_frame(video_file, video_file, f"{current_time}data")
+
     file_path_testx = f"{current_time}dataX.txt"
     file_path_testy = f"{current_time}dataY.txt"
     return file_path_testx, file_path_testy
