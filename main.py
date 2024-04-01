@@ -34,7 +34,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if not os.path.isdir("result"):
     os.makedirs("result")
   
-LABELS = {
+LABELS = [
   "russian twist",
   "tricep dips",
   "t bar row",
@@ -57,7 +57,7 @@ LABELS = {
   "chest fly machine",
   "deadlift",
   "barbell biceps curl",
-}
+]
 current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
 n_steps = 32 # 32 timesteps per series
 n_categories = len(LABELS)
@@ -107,7 +107,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         optimizer.step()
         #scheduler.step()
         current_loss += loss.item()
-        print(category_tensor[0])
+        
         category = LABELS[int(category_tensor[0].item())]
       
         #get loss of val set every plot_every iterations
