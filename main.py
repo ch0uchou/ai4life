@@ -79,7 +79,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
     optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
     #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-    n_iters = 60000
+    n_iters = 30000
     #n_iters = 60000
     print_every = 1000
     plot_every = 10
@@ -115,14 +115,14 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         loss_val = criterion(output_val, category_tensor_val)
         current_loss_val += loss_val.item() 
         
+        if ((loss_val) <= min_val_loss):
+          torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
+          min_val_loss = loss_val
+
         #plot loss
         if iter % plot_every == 0:
             all_losses.append(current_loss / plot_every)
-            current_loss = 0
             val_losses.append(current_loss_val / plot_every)
-            if ((current_loss_val / plot_every) <= min_val_loss):
-              torch.save(rnn.state_dict(),f'result/{current_time}final.pkl')
-              min_val_loss = current_loss_val / plot_every
             
         # Print iter number, loss, name and guess
         if iter % print_every == 0: 
@@ -140,7 +140,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
 def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   if testfold == None:
     output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
-    guess = output_test
+    guess = torch.reshape(output.topk(1)[1],(-1,))
     true = torch.reshape(category_tensor_test,(-1,))
     print(f'Guess: {guess}')
     print(f'True: {true}')
