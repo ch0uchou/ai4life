@@ -189,6 +189,7 @@ if args.test:
     test(rnn, tensor_X_test, tensor_y_test, n_categories)
   else:
     tensor_X_test = load_X(X_test_path, n_steps=n_steps)
+    tensor_X_test = torch.from_numpy(tensor_X_test).to(device)
     file = open(y_test_path, 'r')
     tensor_y_test = np.array(
       [elem for elem in [
