@@ -140,8 +140,8 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
 def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   if testfold == None:
     output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
-    guess = LABELS[torch.reshape(output_test.topk(1)[1],(-1,))[0].item()]
-    true = LABELS[torch.reshape(category_tensor_test,(-1,))[0].item()]
+    guess = LABELS[torch.reshape(output_test.topk(1)[1],(-1,)).item()]
+    true = LABELS[torch.reshape(category_tensor_test,(-1,)).item()]
     print(f'Guess: {guess}')
     print(f'True: {true}')
     confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
