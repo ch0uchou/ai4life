@@ -154,7 +154,7 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
     output = rnn(tensor_X_test)
     # guess = LABELS[torch.reshape(output.topk(1)[1],(-1,))[0].item()]
     print(f'{output.topk(1)}')
-    print(f'{tensor_y_test}')
+    # print(f'{tensor_y_test}')
 
 if args.plot != None:
   plot_loss_acc(args.plot, LABELS)
