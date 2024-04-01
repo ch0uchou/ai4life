@@ -79,7 +79,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
     optimizer = optim.SGD(rnn.parameters(),lr=learning_rate,momentum=0.9)
     #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.1)
 
-    n_iters = 100000
+    n_iters = 60000
     #n_iters = 60000
     print_every = 1000
     plot_every = 10
@@ -132,9 +132,9 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
     print("best model saved")
     with open(f'result/{current_time}loss.npy', 'wb') as f:
       np.save(f, all_losses)
-      print("loss saved")
+      print(f"loss saved")
       np.save(f, val_losses)
-      print("val loss saved")
+      print(f"val loss saved {min_val_loss}")
 
 
 def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
@@ -162,10 +162,10 @@ if args.plot != None:
   plot_loss_acc(args.plot, LABELS)
   # plot_confusion_matrix(args.plot, LABELS)
 elif args.txt:
-  X_train_path = "20240328-130259dataX_train.txt"
-  y_train_path = "20240328-130259dataY_train.txt"
-  X_val_path = "20240328-130259dataX_valid.txt"
-  y_val_path = "20240328-130259dataY_valid.txt"
+  X_train_path = "20240401-193433dataX_train.txt"
+  y_train_path = "20240401-193433dataY_train.txt"
+  X_val_path = "20240401-193433dataX_valid.txt"
+  y_val_path = "20240401-193433dataY_train.txt"
   X_test_path = "20240401-203835dataX.txt"
   y_test_path = "20240401-203835dataY.txt"
 else:
