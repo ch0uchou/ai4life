@@ -15,7 +15,7 @@ from utils import *
 from yolomodel import *
 from datetime import datetime
 import copy
-
+import csv
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -155,10 +155,19 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   else:
     tensor_X_test = tensor_X_test.to(device)
     output = rnn(tensor_X_test)
-    print(f'{output.topk(1)[1]}')
-    result = [[output[i], tensor_y_test[i]] for i in range(len(output))]
+    output = torch.reshape(output.topk(1)[1],(-1,)).cpu().numpy()
+    results = [[tensor_y_test[i], output[i]] for i in range(len(output))]
+    title = ["video", "Dự đoán"]
+    with open("result.csv", 'w') as csvfile:
+      # creating a csv writer object
+      csvwriter = csv.writer(csvfile)
+  
+      # writing the fields
+      csvwriter.writerow(title)
+  
+      # writing the data rows
+      csvwriter.writerows(results)
 
-    # print(f'{tensor_y_test}')
 
 if args.plot != None:
   plot_loss_acc(args.plot, LABELS)
