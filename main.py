@@ -192,8 +192,7 @@ if args.test:
     tensor_y_test = np.array(
       [elem for elem in [
         row.replace('  ', ' ').strip().split(' ') for row in file
-      ]],
-      dtype=np.str_
+      ]]
     )
     file.close()
     tensor_y_test = torch.from_numpy(tensor_y_test).to(device)
