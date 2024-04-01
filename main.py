@@ -193,7 +193,7 @@ if args.test:
       [elem for elem in [
         row.replace('  ', ' ').strip().split(' ') for row in file
       ]],
-      dtype=np.str
+      dtype=np.str_
     )
     file.close()
     tensor_y_test = torch.from_numpy(tensor_y_test).to(device)
