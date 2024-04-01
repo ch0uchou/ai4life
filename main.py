@@ -2,14 +2,12 @@ import numpy as np
 import torch.nn as nn
 import random
 import torch.optim as optim
-from torch.utils.data import DataLoader
 import time
 import math
 import random
 import torch.optim as optim
 import time
 import math
-import matplotlib.ticker as ticker
 import argparse
 from utils import *
 from yolomodel import *
@@ -155,8 +153,8 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   else:
     tensor_X_test = tensor_X_test.to(device)
     output = rnn(tensor_X_test)
-    output = LABELS[torch.reshape(output.topk(1)[1],(-1,)).cpu().numpy()]
-    results = [[tensor_y_test[i][0], output[i]] for i in range(len(output))]
+    output = torch.reshape(output.topk(1)[1],(-1,)).cpu().numpy()
+    results = [[tensor_y_test[i][0], LABELS[output[i]]] for i in range(len(output))]
     title = ["video", "Dự đoán"]
     with open("result/result.csv", 'w') as csvfile:
       # creating a csv writer object
