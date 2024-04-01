@@ -152,7 +152,7 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   else:
     tensor_X_test = tensor_X_test.to(device)
     output = rnn(tensor_X_test)
-    print(f'{LABELS[output.topk(1)[1].item()]}')
+    print(f'{output.topk(1)[1].item()}')
     # print(f'{tensor_y_test}')
 
 if args.plot != None:
