@@ -155,8 +155,8 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   else:
     tensor_X_test = tensor_X_test.to(device)
     output = rnn(tensor_X_test)
-    output = torch.reshape(output.topk(1)[1],(-1,)).cpu().numpy()
-    results = [[tensor_y_test[i], output[i]] for i in range(len(output))]
+    output = LABELS[torch.reshape(output.topk(1)[1],(-1,)).cpu().numpy()]
+    results = [[tensor_y_test[i][0], output[i]] for i in range(len(output))]
     title = ["video", "Dự đoán"]
     with open("result/result.csv", 'w') as csvfile:
       # creating a csv writer object
