@@ -107,7 +107,7 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         optimizer.step()
         #scheduler.step()
         current_loss += loss.item()
-        
+
         category = LABELS[int(category_tensor[0].item())]
       
         #get loss of val set every plot_every iterations
@@ -162,12 +162,12 @@ if args.plot != None:
   plot_loss_acc(args.plot, LABELS)
   # plot_confusion_matrix(args.plot, LABELS)
 elif args.txt:
-  X_train_path = "20240401-193433dataX_train.txt"
-  y_train_path = "20240401-193433dataY_train.txt"
-  X_val_path = "20240401-193433dataX_valid.txt"
-  y_val_path = "20240401-193433dataY_train.txt"
-  X_test_path = "20240401-203835dataX.txt"
-  y_test_path = "20240401-203835dataY.txt"
+  X_train_path = "data/dataX_train.txt"
+  y_train_path = "data/dataX_train.txt"
+  X_val_path = "data/dataX_valid.txt"
+  y_val_path = "data/dataY_valid.txt"
+  X_test_path = "data/dataX_test.txt"
+  y_test_path = "data/dataY_test.txt"
 else:
   if args.train:
     X_train_path, y_train_path, X_val_path, y_val_path = get_trainset(dataset_folder, LABELS, current_time)
