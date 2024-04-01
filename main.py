@@ -107,8 +107,8 @@ def trainning(rnn, X_train_path, y_train_path, X_val_path, y_val_path, n_steps):
         optimizer.step()
         #scheduler.step()
         current_loss += loss.item()
-
-        category = LABELS[(category_tensor[0])]
+        print(category_tensor[0])
+        category = LABELS[int(category_tensor[0])]
       
         #get loss of val set every plot_every iterations
         output_val, category_tensor_val = get_output_from_model(rnn, tensor_X_val, tensor_y_val.long())
