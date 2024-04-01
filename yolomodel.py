@@ -171,7 +171,8 @@ def get_testset(dataset_folder, LABELS, current_time, testfold):
         testfold_path = testfold + "/"
         video_files = glob.glob(os.path.join(testfold_path, "*.mp4"))
         for video_file in video_files:
-            get_video_frame(video_file, video_file, f"{current_time}data")
+            video_name = os.path.basename(video_file)
+            get_video_frame(video_file, video_name, f"{current_time}data")
 
     file_path_testx = f"{current_time}dataX.txt"
     file_path_testy = f"{current_time}dataY.txt"
