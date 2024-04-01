@@ -141,7 +141,7 @@ def test(rnn, tensor_X_test, tensor_y_test, n_categories, testfold=None):
   if testfold == None:
     output_test, category_tensor_test = get_output_from_model(rnn, tensor_X_test, tensor_y_test.long())
     guess = torch.reshape(output_test.topk(1)[1],(-1,))
-    true = LABELS[torch.reshape(category_tensor_test,(-1,)).item()]
+    true = torch.reshape(category_tensor_test,(-1,))
     print(f'Guess: {guess}')
     print(f'True: {true}')
     confusion = confusion_matrix(output_test, category_tensor_test, n_categories)
