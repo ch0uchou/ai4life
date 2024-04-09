@@ -3,6 +3,7 @@ import cv2
 import torch
 import os
 import glob
+import numpy as np
 import argparse
 
 # Load a model
@@ -11,23 +12,27 @@ model = YOLO("yolov8n-pose.pt")  # load an official model
 
 # Predict with the model
 def predict(image_path):
-    results = model(
-        image_path, show_labels=False, show_conf=False, show_boxes=False
-    )  # predict on an image
-    keypoints = (
-        results[0].keypoints.xyn.cpu().numpy()
-    )  # get keypoints (x, y) coordinates
-    humant_pose = keypoints[0, :, :]  # get the first person's keypoints
-    humant_pose = humant_pose.reshape(-1)  # reshape to (N,) format
-    str = ""
-    for i in range(len(humant_pose)):
-        str += f"{humant_pose[i]}"
-        if i != len(humant_pose) - 1:
-            str += ","
-    if len(humant_pose) < 17 * 2:
+    try: 
+        results = model(
+            image_path, show_labels=False, show_conf=False, show_boxes=False
+        )  # predict on an image
+        keypoints = (
+            results[0].keypoints.xyn.cpu().numpy()
+        )  # get keypoints (x, y) coordinates
+        humant_pose = keypoints[0, :, :]  # get the first person's keypoints
+        humant_pose = humant_pose.reshape(-1)  # reshape to (N,) format
+        str = ""
+        for i in range(len(humant_pose)):
+            str += f"{humant_pose[i]}"
+            if i != len(humant_pose) - 1:
+                str += ","
+        if len(humant_pose) < 17 * 2:
+            print("Can't collect 17 keypoint")
+            return ','.join(['0' for i in range(17*2)]) + "\n"
+        return str + "\n"
+    except:
         print("Can't collect 17 keypoint")
-        return None
-    return str + "\n"
+        return ','.join(['0' for i in range(17*2)]) + "\n"
 
 
 def write_data(dataX, dataY, file_path):
